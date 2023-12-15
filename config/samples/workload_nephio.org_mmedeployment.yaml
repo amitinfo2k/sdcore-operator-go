@@ -1,0 +1,13 @@
+apiVersion: workload.nephio.org/v1alpha1
+kind: MMEDeployment
+metadata:
+  labels:
+    app.kubernetes.io/name: mmedeployment
+    app.kubernetes.io/instance: mmedeployment-sample
+    app.kubernetes.io/part-of: sdcore-operator-go
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: sdcore-operator-go
+  name: mmedeployment-sample
+spec:
+  capacity: 
+    maxSubscribers: 10
