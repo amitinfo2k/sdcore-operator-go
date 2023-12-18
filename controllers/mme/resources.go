@@ -11,7 +11,7 @@ import (
 	//"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v1alpha1.MMEDeployment) (*appsv1.Deployment, error) {
+func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v1alpha1.MMEDeployment) (*appsv1.StatefulSet, error) {
 	namespace := mmeDeployment.Namespace
 	instanceName := mmeDeployment.Name
 	spec := mmeDeployment.Spec
@@ -47,12 +47,12 @@ func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v
 
 	*/
 
-	deployment := &appsv1.Deployment{
+	deployment := &appsv1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instanceName,
 			Namespace: namespace,
 		},
-		Spec: appsv1.DeploymentSpec{
+		Spec: appsv1.StatefulSetSpec{
 			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
