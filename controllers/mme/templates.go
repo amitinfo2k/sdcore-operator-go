@@ -268,7 +268,7 @@ func renderConfigFiles(log logr.Logger, values configurationTemplateValues) ([]s
 		log.Error(err, "Error while rendering template")
 		return nil, err
 	}
-
+	buffer.Reset()
 	if err := runScriptTemplate.Execute(&buffer, values); err == nil {
 		theArray = append(theArray, buffer.String())
 	} else {

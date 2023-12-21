@@ -11,7 +11,7 @@ import (
 	//"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v1alpha1.MMEDeployment) (*appsv1.StatefulSet, error) {
+func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v1alpha1.MMEDeployment) (*appsv1.Deployment, error) {
 	namespace := mmeDeployment.Namespace
 	instanceName := mmeDeployment.Name
 	spec := mmeDeployment.Spec
@@ -47,12 +47,12 @@ func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v
 
 	*/
 
-	deployment := &appsv1.StatefulSet{
+	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instanceName,
 			Namespace: namespace,
 		},
-		Spec: appsv1.StatefulSetSpec{
+		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
@@ -86,7 +86,8 @@ func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v
 							Name:            "mme-init",
 							Image:           controllers.MMEImage,
 							ImagePullPolicy: apiv1.PullIfNotPresent,
-							Command:         []string{"/opt/mme/scripts/mme-init.sh"},
+							Command:         []string{"sh", "-xc"},
+							Args:            []string{"sh /opt/mme/scripts/mme-init.sh"},
 							Env: []apiv1.EnvVar{
 								{
 									Name: "POD_IP",
@@ -120,8 +121,8 @@ func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v
 							Image:           controllers.MMEImage,
 							ImagePullPolicy: apiv1.PullAlways,
 
-							Command: []string{"bash", "xc"},
-							Args:    []string{"/opt/mme/scripts/mme-run.sh mme-app"},
+							Command: []string{"sh", "-xc"},
+							Args:    []string{"sh /opt/mme/scripts/mme-run.sh mme-app"},
 
 							Env: []apiv1.EnvVar{
 								{
@@ -164,8 +165,8 @@ func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v
 									ContainerPort: 36412,
 								},
 							},
-							Command: []string{"bash", "xc"},
-							Args:    []string{"/opt/mme/scripts/mme-run.sh s1ap-app"},
+							Command: []string{"sh", "-xc"},
+							Args:    []string{"sh /opt/mme/scripts/mme-run.sh s1ap-app"},
 							Env: []apiv1.EnvVar{
 								{
 									Name: "POD_IP",
@@ -204,8 +205,8 @@ func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v
 							Name:            "s11-app",
 							Image:           controllers.MMEImage,
 							ImagePullPolicy: apiv1.PullAlways,
-							Command:         []string{"bash", "xc"},
-							Args:            []string{"/opt/mme/scripts/mme-run.sh s11-app"},
+							Command:         []string{"sh", "-xc"},
+							Args:            []string{"sh /opt/mme/scripts/mme-run.sh s11-app"},
 							Env: []apiv1.EnvVar{
 								{
 									Name: "POD_IP",
@@ -240,8 +241,8 @@ func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v
 							Name:            "s6a-app",
 							Image:           controllers.MMEImage,
 							ImagePullPolicy: apiv1.PullAlways,
-							Command:         []string{"bash", "xc"},
-							Args:            []string{"/opt/mme/scripts/mme-run.sh s6a-app"},
+							Command:         []string{"sh", "-xc"},
+							Args:            []string{"sh /opt/mme/scripts/mme-run.sh s6a-app"},
 							Env: []apiv1.EnvVar{
 								{
 									Name: "POD_IP",
