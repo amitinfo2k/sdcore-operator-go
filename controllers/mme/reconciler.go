@@ -75,15 +75,20 @@ func (r *MMEDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	ScriptConfigMapName := "mme-scripts"
 	log.Info("Reconcile++ ", "configMapName = ", configMapName)
 	var configMapVersion string
+	var scriptConfMapVersion string
 	currentConfigMap := new(apiv1.ConfigMap)
 	if err := r.Client.Get(ctx, types.NamespacedName{Name: configMapName, Namespace: namespace}, currentConfigMap); err == nil {
 		configMapFound = true
 		configMapVersion = currentConfigMap.ResourceVersion
 	}
+	log.Info("Reconcile", "configMapFound=", configMapFound, ",configMapVersion:", configMapVersion)
+	currentConfigMap = new(apiv1.ConfigMap)
 
 	if err := r.Client.Get(ctx, types.NamespacedName{Name: ScriptConfigMapName, Namespace: namespace}, currentConfigMap); err == nil {
 		scriptConfigMapFound = true
+		scriptConfMapVersion = currentConfigMap.ResourceVersion
 	}
+	log.Info("Reconcile", "scriptConfigMapFound=", scriptConfigMapFound, ",configMapVersion:", scriptConfMapVersion)
 
 	serviceFound := false
 	serviceName := mmeDeployment.Name
@@ -111,8 +116,9 @@ func (r *MMEDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			}
 		}
 
-		if currentDeployment.Spec.Template.Annotations[controllers.ConfigMapVersionAnnotation] != configMapVersion {
+		if currentDeployment.Spec.Template.Annotations[controllers.ConfigMapVersionAnnotation] != scriptConfMapVersion {
 			log.Info("ConfigMap has been updated, rolling Deployment pods", "Deployment.namespace", currentDeployment.Namespace, "Deployment.name", currentDeployment.Name)
+			log.Info("Reconcile", "configMapVersion:", configMapVersion, ",Annotations:", currentDeployment.Spec.Template.Annotations[controllers.ConfigMapVersionAnnotation])
 			currentDeployment.Spec.Template.Annotations[controllers.ConfigMapVersionAnnotation] = configMapVersion
 
 			if err := r.Update(ctx, currentDeployment); err != nil {
