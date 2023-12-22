@@ -17,7 +17,7 @@ jq --arg MME_LOCAL_IP "$POD_IP" '.s11.egtp_local_addr=$MME_LOCAL_IP' config.json
 # Set SPGWC address to the config
 # We need to convert service domain name to actual IP address
 # because mme apps does not take domain address - should be fixed in openmme
-SPGWC_ADDR=$(dig +short +search {{ .Values.config.mme.spgwAddr }})
+SPGWC_ADDR=10.15.10.11
 jq --arg SPGWC_ADDR "$SPGWC_ADDR" '.s11.sgw_addr //= $SPGWC_ADDR' config.json > config.tmp && mv config.tmp config.json
 jq --arg SPGWC_ADDR "$SPGWC_ADDR" '.s11.pgw_addr //= $SPGWC_ADDR' config.json > config.tmp && mv config.tmp config.json
 
@@ -39,9 +39,9 @@ cp /opt/mme/config/s6a_fd.conf /opt/mme/config/shared/s6a_fd.conf
 cp /opt/mme/config/shared/* /openmme/target/conf/
 
 # Generate certs
-MME_IDENTITY={{ tuple "mme" "identity" . | include "omec-control-plane.diameter_endpoint" | quote }};
+MME_IDENTITY=mme.omec.svc.cluster.local;
 DIAMETER_HOST=$(echo $MME_IDENTITY | cut -d'.' -f1)
-DIAMETER_REALM={{ tuple "mme" "realm" . | include "omec-control-plane.diameter_endpoint" | quote }};
+DIAMETER_REALM=omec.svc.cluster.local;
 
 cp /openmme/target/conf/make_certs.sh /opt/mme/config/shared/make_certs.sh
 cd /opt/mme/config/shared

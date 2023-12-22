@@ -234,7 +234,7 @@ func renderS6AFDJsonTemplate(values configurationTemplateValues) (string, error)
 	}
 }
 
-/*func renderConfigFiles(log logr.Logger, values configurationTemplateValues) ([]string, error) {
+func renderConfigFiles(log logr.Logger, values configurationTemplateValues) ([]string, error) {
 	var buffer bytes.Buffer
 	var theArray []string
 	xfiles := [2]string{"templates/_mme-init.sh.tpl", "templates/_mme-run.sh.tpl"}
@@ -244,7 +244,8 @@ func renderS6AFDJsonTemplate(values configurationTemplateValues) (string, error)
 		configTemplate, err := template.ParseFiles(v)
 		if err == nil {
 			if err := configTemplate.Execute(&buffer, values); err == nil {
-				theArray[i] = buffer.String()
+				theArray = append(theArray, buffer.String())
+				buffer.Reset()
 			} else {
 				log.Error(err, "Error while rendering template")
 				return nil, err
@@ -255,9 +256,9 @@ func renderS6AFDJsonTemplate(values configurationTemplateValues) (string, error)
 		}
 	}
 	return theArray, nil
-}*/
+}
 
-func renderConfigFiles(log logr.Logger, values configurationTemplateValues) ([]string, error) {
+/*func renderConfigFiles(log logr.Logger, values configurationTemplateValues) ([]string, error) {
 	var buffer bytes.Buffer
 	theArray := []string{}
 
@@ -277,4 +278,4 @@ func renderConfigFiles(log logr.Logger, values configurationTemplateValues) ([]s
 	}
 
 	return theArray, nil
-}
+}*/
