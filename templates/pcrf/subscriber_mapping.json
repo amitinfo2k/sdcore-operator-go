@@ -1,0 +1,46 @@
+{
+    "Policies": {
+      "rules": {
+        "best-effort-internet-access": {
+          "definition": {
+            "Charging-Rule-Name": "best-effort-internet-access",
+            "Flow-Information": {
+              "Flow-Description": "permit out ip from 0.0.0.0/0 to assigned",
+              "Flow-Direction": 3
+            },
+            "Flow-Status": 2,
+            "QoS-Information": {
+              "Allocation-Retention-Priority": {
+                "Pre-emption-Capability": 1,
+                "Pre-emption-Vulnerability": 1,
+                "Priority-Level": 1
+              },
+              "Guaranteed-Bitrate-DL": 0,
+              "Guaranteed-Bitrate-UL": 0,
+              "Max-Requested-Bandwidth-DL": 5120000,
+              "Max-Requested-Bandwidth-UL": 512000,
+              "QoS-Class-Identifier": 9
+            }
+          }
+        }
+      },
+      "service-groups": {
+        "internet": {
+          "default-activate-service": [
+            "be-internet-access"
+          ]
+        }
+      },
+      "services": {
+        "be-internet-access": {
+          "AMBR_DL": 10240000,
+          "AMBR_UL": 1024000,
+          "arp": 1,
+          "qci": 9,
+          "service-activation-rules": [
+            "best-effort-internet-access"
+          ]
+        }
+      }
+    }
+  }

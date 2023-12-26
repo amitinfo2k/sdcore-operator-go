@@ -1,0 +1,13 @@
+apiVersion: workload.nephio.org/v1alpha1
+kind: PCRFDeployment
+metadata:
+  labels:
+    app.kubernetes.io/name: pcrfdeployment
+    app.kubernetes.io/instance: pcrf
+    app.kubernetes.io/part-of: sdcore-operator-go
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: sdcore-operator-go
+  name: pcrf
+spec:
+  capacity: 
+    maxSubscribers: 10

@@ -1,4 +1,4 @@
-package hss
+package pcrf
 
 import (
 	"github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
@@ -11,22 +11,21 @@ import (
 	//"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func createDeployment(log logr.Logger, configMapVersion string, hssDeployment *v1alpha1.HSSDeployment) (*appsv1.Deployment, error) {
-	namespace := hssDeployment.Namespace
-	instanceName := hssDeployment.Name
-	spec := hssDeployment.Spec
+func createDeployment(log logr.Logger, configMapVersion string, pcrfDeployment *v1alpha1.PCRFDeployment) (*appsv1.Deployment, error) {
+	namespace := pcrfDeployment.Namespace
+	instanceName := pcrfDeployment.Name
+	spec := pcrfDeployment.Spec
 
 	previleged := true
 	runAsUser := int64(0)
 	mode := int32(493)
-	configMode := int32(420)
 
 	replicas, resourceRequirements, err := createResourceRequirements(spec)
 	if err != nil {
 		return nil, err
 	}
 
-	/*networkAttachmentDefinitionNetworks, err := createNetworkAttachmentDefinitionNetworks(hssDeployment.Name, &spec)
+	/*networkAttachmentDefinitionNetworks, err := createNetworkAttachmentDefinitionNetworks(pcrfDeployment.Name, &spec)
 	if err != nil {
 		return nil, err
 	}*/
@@ -70,15 +69,15 @@ func createDeployment(log logr.Logger, configMapVersion string, hssDeployment *v
 				Spec: apiv1.PodSpec{
 					InitContainers: []apiv1.Container{
 						{
-							Name:            "hss-bootstrap",
-							Image:           controllers.HssDbImage,
+							Name:            "pcrf-bootstrap",
+							Image:           controllers.PCRFDbImage,
 							ImagePullPolicy: apiv1.PullIfNotPresent,
 							SecurityContext: initSecurityContext,
 							Command:         []string{"sh", "-xc"},
-							Args:            []string{"sh /opt/c3po/hss/scripts/hss-bootstrap.sh"},
+							Args:            []string{"sh /opt/c3po/pcrf/pcrf-bootstrap.sh"},
 							VolumeMounts: []apiv1.VolumeMount{
 								{
-									MountPath: "/opt/c3po/hss/scripts",
+									MountPath: "/opt/c3po/pcrf",
 									Name:      "scripts",
 								},
 							},
@@ -86,29 +85,19 @@ func createDeployment(log logr.Logger, configMapVersion string, hssDeployment *v
 					},
 					Containers: []apiv1.Container{
 						{
-							Name:            "hss",
-							Image:           controllers.HSSImage,
+							Name:            "pcrf",
+							Image:           controllers.PCRFImage,
 							ImagePullPolicy: apiv1.PullAlways,
+							SecurityContext: initSecurityContext,
+							Command:         []string{"bash", "-c", "/opt/c3po/pcrf/scripts/pcrf-run.sh"},
 
-							Command: []string{"bash", "-c", "/opt/c3po/hss/scripts/hss-run.sh; sleep 3600"},
-
-							Env: []apiv1.EnvVar{
-								{
-									Name: "POD_IP",
-									ValueFrom: &apiv1.EnvVarSource{
-										FieldRef: &apiv1.ObjectFieldSelector{
-											FieldPath: "status.podIP",
-										},
-									},
-								},
-							},
 							VolumeMounts: []apiv1.VolumeMount{
 								{
-									MountPath: "/opt/c3po/hss/scripts",
+									MountPath: "/opt/c3po/pcrf/scripts",
 									Name:      "scripts",
 								},
 								{
-									MountPath: "/etc/hss/conf",
+									MountPath: "/etc/pcrf/conf",
 									Name:      "configs",
 								},
 							},
@@ -123,7 +112,7 @@ func createDeployment(log logr.Logger, configMapVersion string, hssDeployment *v
 							VolumeSource: apiv1.VolumeSource{
 								ConfigMap: &apiv1.ConfigMapVolumeSource{
 									LocalObjectReference: apiv1.LocalObjectReference{
-										Name: "hss-scripts",
+										Name: "pcrf-scripts",
 									},
 									DefaultMode: &mode,
 								},
@@ -134,9 +123,9 @@ func createDeployment(log logr.Logger, configMapVersion string, hssDeployment *v
 							VolumeSource: apiv1.VolumeSource{
 								ConfigMap: &apiv1.ConfigMapVolumeSource{
 									LocalObjectReference: apiv1.LocalObjectReference{
-										Name: "hss-configs",
+										Name: "pcrf-configs",
 									},
-									DefaultMode: &configMode,
+									DefaultMode: &mode,
 								},
 							},
 						},
@@ -149,9 +138,9 @@ func createDeployment(log logr.Logger, configMapVersion string, hssDeployment *v
 	return deployment, nil
 }
 
-func createService(hssDeployment *v1alpha1.HSSDeployment) *apiv1.Service {
-	namespace := hssDeployment.Namespace
-	instanceName := hssDeployment.Name
+func createService(pcrfDeployment *v1alpha1.PCRFDeployment) *apiv1.Service {
+	namespace := pcrfDeployment.Namespace
+	instanceName := pcrfDeployment.Name
 
 	labels := map[string]string{
 		"name": instanceName,
@@ -166,22 +155,22 @@ func createService(hssDeployment *v1alpha1.HSSDeployment) *apiv1.Service {
 			Selector: labels,
 			Ports: []apiv1.ServicePort{
 				{
-					Name:     "s6a",
+					Name:     "gx",
 					Protocol: apiv1.ProtocolTCP,
 					Port:     3868,
-					NodePort: 30868,
-				},
-				{
-					Name:     "config-port",
-					Protocol: apiv1.ProtocolTCP,
-					Port:     8080,
-					NodePort: 30081,
+					NodePort: 31868,
 				},
 				{
 					Name:     "prometheus-exporter",
 					Protocol: apiv1.ProtocolTCP,
 					Port:     9089,
-					NodePort: 30086,
+					NodePort: 30087,
+				},
+				{
+					Name:     "config-port",
+					Protocol: apiv1.ProtocolTCP,
+					Port:     8080,
+					NodePort: 30082,
 				},
 			},
 			Type: apiv1.ServiceTypeNodePort,
@@ -191,15 +180,15 @@ func createService(hssDeployment *v1alpha1.HSSDeployment) *apiv1.Service {
 	return service
 }
 
-func createConfigMap(log logr.Logger, hssDeployment *v1alpha1.HSSDeployment) (*apiv1.ConfigMap, error) {
-	namespace := hssDeployment.Namespace
-	//instanceName := hssDeployment.Name
-	instanceName := "hss-configs"
+func createConfigMap(log logr.Logger, pcrfDeployment *v1alpha1.PCRFDeployment) (*apiv1.ConfigMap, error) {
+	namespace := pcrfDeployment.Namespace
+	//instanceName := pcrfDeployment.Name
+	instanceName := "pcrf-configs"
 	log.Info("createConfigMap++", "instanceName=", instanceName)
 
-	/*n2ip, err := controllers.GetFirstInterfaceConfigIPv4(hssDeployment.Spec.Interfaces, "n2")
+	/*n2ip, err := controllers.GetFirstInterfaceConfigIPv4(pcrfDeployment.Spec.Interfaces, "n2")
 	if err != nil {
-		log.Error(err, "Interface N2 not found in HSSDeployment Spec")
+		log.Error(err, "Interface N2 not found in PCRFDeployment Spec")
 		return nil, err
 	}*/
 
@@ -211,7 +200,7 @@ func createConfigMap(log logr.Logger, hssDeployment *v1alpha1.HSSDeployment) (*a
 
 	configJson, err := renderConfigFiles(log, templateValues)
 	if err != nil {
-		log.Error(err, "Could not render HSS configuration template.")
+		log.Error(err, "Could not render PCRF configuration template.")
 		return nil, err
 	}
 
@@ -225,24 +214,22 @@ func createConfigMap(log logr.Logger, hssDeployment *v1alpha1.HSSDeployment) (*a
 			Name:      instanceName,
 		},
 		Data: map[string]string{
-			"acl.conf": configJson[0],
-			"hss.conf": configJson[1],
-			"hss.json": configJson[2],
-			"oss.json": configJson[3],
+			"config.json": configJson[0],
+			"s6a_fd.conf": configJson[1],
 		},
 	}
 	log.Info("createConfigMap--")
 	return configMap, nil
 }
 
-func createScriptConfigMap(log logr.Logger, hssDeployment *v1alpha1.HSSDeployment) (*apiv1.ConfigMap, error) {
-	namespace := hssDeployment.Namespace
-	instanceName := "hss-scripts"
+func createScriptConfigMap(log logr.Logger, pcrfDeployment *v1alpha1.PCRFDeployment) (*apiv1.ConfigMap, error) {
+	namespace := pcrfDeployment.Namespace
+	instanceName := "pcrf-scripts"
 	log.Info("createScriptConfigMap++", "instanceName=", instanceName)
 
-	/*n2ip, err := controllers.GetFirstInterfaceConfigIPv4(hssDeployment.Spec.Interfaces, "n2")
+	/*n2ip, err := controllers.GetFirstInterfaceConfigIPv4(pcrfDeployment.Spec.Interfaces, "n2")
 	if err != nil {
-		log.Error(err, "Interface N2 not found in HSSDeployment Spec")
+		log.Error(err, "Interface N2 not found in PCRFDeployment Spec")
 		return nil, err
 	}*/
 
@@ -252,9 +239,9 @@ func createScriptConfigMap(log logr.Logger, hssDeployment *v1alpha1.HSSDeploymen
 		S11_PORT:  2123,
 	}
 
-	hssScriptsConfig, err := renderScriptFiles(log, templateValues)
+	pcrfScriptsConfig, err := renderScriptFiles(log, templateValues)
 	if err != nil {
-		log.Error(err, "Could not render HSS Scripts configuration template.")
+		log.Error(err, "Could not render PCRF Scripts configuration template.")
 		return nil, err
 	}
 
@@ -268,15 +255,15 @@ func createScriptConfigMap(log logr.Logger, hssDeployment *v1alpha1.HSSDeploymen
 			Name:      instanceName,
 		},
 		Data: map[string]string{
-			"hss-bootstrap.sh": hssScriptsConfig[0],
-			"hss-run.sh":       hssScriptsConfig[1],
+			"pcrf-init.sh": pcrfScriptsConfig[0],
+			"pcrf-run.sh":  pcrfScriptsConfig[1],
 		},
 	}
 	log.Info("createScriptConfigMap--")
 	return configMap, nil
 }
 
-func createResourceRequirements(hssDeploymentSpec v1alpha1.HSSDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
+func createResourceRequirements(pcrfDeploymentSpec v1alpha1.PCRFDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
 	// TODO: Requirements should be calculated based on DL, UL
 	// TODO: increase number of recpicas based on NFDeployment.Capacity.MaxSessions
 
@@ -288,7 +275,7 @@ func createResourceRequirements(hssDeploymentSpec v1alpha1.HSSDeploymentSpec) (i
 	var memoryLimit string
 	var memoryRequest string
 
-	if hssDeploymentSpec.Capacity.MaxSubscribers > 1000 {
+	if pcrfDeploymentSpec.Capacity.MaxSubscribers > 1000 {
 		cpuLimit = "300m"
 		memoryLimit = "256Mi"
 		cpuRequest = "300m"
@@ -314,8 +301,8 @@ func createResourceRequirements(hssDeploymentSpec v1alpha1.HSSDeploymentSpec) (i
 	return replicas, &resources, nil
 }
 
-/*func createNetworkAttachmentDefinitionNetworks(templateName string, hssDeploymentSpec *v1alpha1.HSSDeploymentSpec) (string, error) {
+/*func createNetworkAttachmentDefinitionNetworks(templateName string, pcrfDeploymentSpec *v1alpha1.PCRFDeploymentSpec) (string, error) {
 	return controllers.CreateNetworkAttachmentDefinitionNetworks(templateName, map[string][]nephiov1alpha1.InterfaceConfig{
-		"n2": controllers.GetInterfaceConfigs(hssDeploymentSpec.Interfaces, "n2"),
+		"n2": controllers.GetInterfaceConfigs(pcrfDeploymentSpec.Interfaces, "n2"),
 	})
 }*/

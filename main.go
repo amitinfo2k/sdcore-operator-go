@@ -30,6 +30,7 @@ import (
 	//	"github.com/amitinfo2k/sdcore-operator-go/controllers"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers/hss"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers/mme"
+	"github.com/amitinfo2k/sdcore-operator-go/controllers/pcrf"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers/spgwc"
 	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -109,10 +110,10 @@ func main() {
 	}
 
 	//PCRF
-	//schemeBuilder.Register(&v1alpha1.PCRFDeployment{}, &v1alpha1.PCRFDeploymentList{})
-	//if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
-	//		fail(err, "Not able to register MMEDeployment kind")
-	//	}
+	schemeBuilder.Register(&v1alpha1.PCRFDeployment{}, &v1alpha1.PCRFDeploymentList{})
+	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
+		fail(err, "Not able to register MMEDeployment kind")
+	}
 
 	//SPGWC
 	schemeBuilder.Register(&v1alpha1.SPGWCDeployment{}, &v1alpha1.SPGWCDeploymentList{})
@@ -150,9 +151,16 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "MMEDeployment")
 		os.Exit(1)
 	}
+	//PCRF
+	if err = (&pcrf.PCRFDeploymentReconciler{
+		Client: manager.GetClient(),
+		Scheme: manager.GetScheme(),
+	}).SetupWithManager(manager); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "MMEDeployment")
+		os.Exit(1)
+	}
 
 	//+kubebuilder:scaffold:builder
-
 	if err := manager.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")
 		os.Exit(1)

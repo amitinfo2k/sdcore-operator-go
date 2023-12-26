@@ -102,6 +102,26 @@ rules:
 - apiGroups:
   - workload.nephio.org
   resources:
+  - pcrfdeployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - workload.nephio.org
+  resources:
+  - pcrfdeployments/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - workload.nephio.org
+  resources:
   - spgwcdeployments
   verbs:
   - create
