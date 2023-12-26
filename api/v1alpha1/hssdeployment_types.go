@@ -27,60 +27,60 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// MMEDeploymentSpec defines the desired state of MMEDeployment
-type MMEDeploymentSpec struct {
+// HSSDeploymentSpec defines the desired state of HSSDeployment
+type HSSDeploymentSpec struct {
 	nephiov1alpha1.NFDeploymentSpec `json:",inline" yaml:",inline"`
 }
 
-// MMEDeploymentStatus defines the observed state of MMEDeployment
-type MMEDeploymentStatus struct {
+// HSSDeploymentStatus defines the observed state of HSSDeployment
+type HSSDeploymentStatus struct {
 	nephiov1alpha1.NFDeploymentStatus `json:",inline" yaml:",inline"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// MMEDeployment is the Schema for the mmedeployments API
-type MMEDeployment struct {
+// HSSDeployment is the Schema for the hssdeployments API
+type HSSDeployment struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   MMEDeploymentSpec   `json:"spec,omitempty"`
-	Status MMEDeploymentStatus `json:"status,omitempty"`
+	Spec   HSSDeploymentSpec   `json:"spec,omitempty"`
+	Status HSSDeploymentStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// MMEDeploymentList contains a list of MMEDeployment
-type MMEDeploymentList struct {
+// HSSDeploymentList contains a list of HSSDeployment
+type HSSDeploymentList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []MMEDeployment `json:"items"`
+	Items           []HSSDeployment `json:"items"`
 }
 
 // Implement NFDeployment interface
 
-func (d *MMEDeployment) GetNFDeploymentSpec() *nephiov1alpha1.NFDeploymentSpec {
+func (d *HSSDeployment) GetNFDeploymentSpec() *nephiov1alpha1.NFDeploymentSpec {
 	return d.Spec.NFDeploymentSpec.DeepCopy()
 }
-func (d *MMEDeployment) GetNFDeploymentStatus() *nephiov1alpha1.NFDeploymentStatus {
+func (d *HSSDeployment) GetNFDeploymentStatus() *nephiov1alpha1.NFDeploymentStatus {
 	return d.Status.NFDeploymentStatus.DeepCopy()
 }
-func (d *MMEDeployment) SetNFDeploymentSpec(s *nephiov1alpha1.NFDeploymentSpec) {
+func (d *HSSDeployment) SetNFDeploymentSpec(s *nephiov1alpha1.NFDeploymentSpec) {
 	s.DeepCopyInto(&d.Spec.NFDeploymentSpec)
 }
-func (d *MMEDeployment) SetNFDeploymentStatus(s *nephiov1alpha1.NFDeploymentStatus) {
+func (d *HSSDeployment) SetNFDeploymentStatus(s *nephiov1alpha1.NFDeploymentStatus) {
 	s.DeepCopyInto(&d.Status.NFDeploymentStatus)
 }
 
 // Interface type metadata.
 var (
-	MMEDeploymentKind             = reflect.TypeOf(MMEDeployment{}).Name()
-	MMEDeploymentGroupKind        = schema.GroupKind{Group: nephiov1alpha1.Group, Kind: MMEDeploymentKind}.String()
-	MMEDeploymentKindAPIVersion   = MMEDeploymentKind + "." + nephiov1alpha1.GroupVersion.String()
-	MMEDeploymentGroupVersionKind = nephiov1alpha1.GroupVersion.WithKind(MMEDeploymentKind)
+	HSSDeploymentKind             = reflect.TypeOf(HSSDeployment{}).Name()
+	HSSDeploymentGroupKind        = schema.GroupKind{Group: nephiov1alpha1.Group, Kind: HSSDeploymentKind}.String()
+	HSSDeploymentKindAPIVersion   = HSSDeploymentKind + "." + nephiov1alpha1.GroupVersion.String()
+	HSSDeploymentGroupVersionKind = nephiov1alpha1.GroupVersion.WithKind(HSSDeploymentKind)
 )
 
 func init() {
-	nephiov1alpha1.SchemeBuilder.Register(&MMEDeployment{}, &MMEDeploymentList{})
+	nephiov1alpha1.SchemeBuilder.Register(&HSSDeployment{}, &HSSDeploymentList{})
 }

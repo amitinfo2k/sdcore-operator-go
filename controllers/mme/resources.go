@@ -425,13 +425,7 @@ func createConfigMap(log logr.Logger, mmeDeployment *v1alpha1.MMEDeployment) (*a
 		S11_PORT:  2123,
 	}
 
-	configJson, err := renderConfigJsonTemplate(templateValues)
-	if err != nil {
-		log.Error(err, "Could not render MME configuration template.")
-		return nil, err
-	}
-
-	s6aFdConfigJson, err := renderS6AFDJsonTemplate(templateValues)
+	configJson, err := renderConfigFiles(log, templateValues)
 	if err != nil {
 		log.Error(err, "Could not render MME configuration template.")
 		return nil, err
@@ -447,8 +441,8 @@ func createConfigMap(log logr.Logger, mmeDeployment *v1alpha1.MMEDeployment) (*a
 			Name:      instanceName,
 		},
 		Data: map[string]string{
-			"config.json": configJson,
-			"s6a_fd.conf": s6aFdConfigJson,
+			"config.json": configJson[0],
+			"s6a_fd.conf": configJson[1],
 		},
 	}
 	log.Info("createConfigMap--")
@@ -472,7 +466,7 @@ func createScriptConfigMap(log logr.Logger, mmeDeployment *v1alpha1.MMEDeploymen
 		S11_PORT:  2123,
 	}
 
-	mmeScriptsConfig, err := renderConfigFiles(log, templateValues)
+	mmeScriptsConfig, err := renderScriptFiles(log, templateValues)
 	if err != nil {
 		log.Error(err, "Could not render MME Scripts configuration template.")
 		return nil, err

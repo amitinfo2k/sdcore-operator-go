@@ -1,4 +1,4 @@
-package mme
+package spgwc
 
 import (
 	"bytes"
@@ -17,7 +17,7 @@ func renderConfigFiles(log logr.Logger, values configurationTemplateValues) ([]s
 	var buffer bytes.Buffer
 	var theArray []string
 
-	xfiles := [2]string{"templates/mme/config.json", "templates/mme/s6a_fd.conf"}
+	xfiles := [4]string{"templates/spgwc/config.json", "templates/spgwc/cp.json", "templates/spgwc/gx.conf", "templates/spgwc/subscriber_mapping.json"}
 	for i, v := range xfiles {
 		log.Info("renderConfigFiles++", "i=", i, "v=", v)
 		configTemplate, err := template.ParseFiles(v)
@@ -40,10 +40,10 @@ func renderConfigFiles(log logr.Logger, values configurationTemplateValues) ([]s
 func renderScriptFiles(log logr.Logger, values configurationTemplateValues) ([]string, error) {
 	var buffer bytes.Buffer
 	var theArray []string
-	xfiles := [2]string{"templates/mme/_mme-init.sh.tpl", "templates/mme/_mme-run.sh.tpl"}
+	xfiles := [2]string{"templates/spgwc/_spgwc-init.sh.tpl", "templates/spgwc/_spgwc-run.sh.tpl"}
 
 	for i, v := range xfiles {
-		log.Info("renderConfigFiles++", "i=", i, "v=", v)
+		log.Info("renderScriptFiles++", "i=", i, "v=", v)
 		configTemplate, err := template.ParseFiles(v)
 		if err == nil {
 			if err := configTemplate.Execute(&buffer, values); err == nil {

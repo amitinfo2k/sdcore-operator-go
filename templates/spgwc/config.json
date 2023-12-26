@@ -1,0 +1,7 @@
+{
+    "gx": {
+      "host": "pcrf.omec.svc.cluster.local",
+      "host_type": "freediameter",
+      "realm": "omec.svc.cluster.local"
+    }
+  }

@@ -1,0 +1,28 @@
+{
+    "global": {
+      "gxConfig": 1,
+      "heartbeatFailure": true,
+      "httpPort": 8080,
+      "loggingLevel": "LOG_DEBUG",
+      "periodicTimerSec": 10,
+      "pfcpPort": 8805,
+      "prometheusPort": 9089,
+      "requestTimeoutMilliSec": 5000,
+      "requestTries": 3,
+      "s11Port": 2123,
+      "transmitCount": 5,
+      "transmitTimerSec": 2,
+      "upfdnstimeout": 100,
+      "urrConfig": 0
+    },
+    "ip_pool_config": {
+      "staticUeIpPool": {
+        "ip": "10.136.137.32",
+        "mask": "255.255.255.224"
+      },
+      "ueIpPool": {
+        "ip": "10.136.137.0",
+        "mask": "255.255.255.224"
+      }
+    }
+  }

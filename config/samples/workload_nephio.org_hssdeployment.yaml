@@ -1,0 +1,13 @@
+apiVersion: workload.nephio.org/v1alpha1
+kind: HSSDeployment
+metadata:
+  labels:
+    app.kubernetes.io/name: hssdeployment
+    app.kubernetes.io/instance: hss
+    app.kubernetes.io/part-of: sdcore-operator-go
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: sdcore-operator-go
+  name: hss
+spec:
+  capacity: 
+    maxSubscribers: 10

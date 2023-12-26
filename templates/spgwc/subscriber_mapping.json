@@ -1,0 +1,102 @@
+{
+    "access-profiles": {
+      "access-all": {
+        "type": "allow-all"
+      },
+      "apps-only": {
+        "filter": "only_apps_network",
+        "type": "specific-network"
+      },
+      "excluding-app": {
+        "filter": "exclude-app-name",
+        "type": "excluding-this-app"
+      },
+      "internet-only": {
+        "filter": "No_private_network",
+        "type": "internet-only"
+      },
+      "intranet-only": {
+        "filter": "only_private_network",
+        "type": "intranet-only"
+      },
+      "specific-app": {
+        "filter": "allow-app-name",
+        "type": "specific-destination-only"
+      }
+    },
+    "apn-profiles": {
+      "apn-profile1": {
+        "apn-name": "internet",
+        "dns_primary": "8.8.8.4",
+        "dns_secondary": "8.8.8.8",
+        "gx_enabled": true,
+        "mtu": 1460,
+        "network": "lbo",
+        "usage": 1
+      }
+    },
+    "qos-profiles": {
+      "mobile": {
+        "apn-ambr": [
+          12345678,
+          12345678
+        ],
+        "arp": 1,
+        "qci": 9
+      },
+      "qos-profile1": {
+        "apn-ambr": [
+          12345678,
+          12345678
+        ],
+        "arp": 1,
+        "qci": 9
+      }
+    },
+    "subscriber-selection-rules": [
+      {
+        "keys": {
+          "imsi-range": {
+            "from": 200000000000000,
+            "to": 299999999999999
+          },
+          "serving-plmn": {
+            "mcc": 208,
+            "mnc": 10,
+            "tac": 1
+          }
+        },
+        "priority": 5,
+        "selected-access-profile": [
+          "access-all"
+        ],
+        "selected-apn-profile": "apn-profile1",
+        "selected-qos-profile": "qos-profile1",
+        "selected-user-plane-profile": "user-plane1"
+      },
+      {
+        "keys": {
+          "match-all": true
+        },
+        "priority": 10,
+        "selected-access-profile": [
+          "access-all"
+        ],
+        "selected-apn-profile": "apn-profile1",
+        "selected-qos-profile": "qos-profile1",
+        "selected-user-plane-profile": "user-plane1"
+      }
+    ],
+    "user-plane-profiles": {
+      "user-plane1": {
+        "access-tags": {
+          "tag1": "ACC"
+        },
+        "global-address": true,
+        "qos-tags": {
+          "tag1": "BW"
+        },
+        "user-plane": "upf"
+      }
+    }
+  }

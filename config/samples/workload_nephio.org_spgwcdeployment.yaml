@@ -1,0 +1,13 @@
+apiVersion: workload.nephio.org/v1alpha1
+kind: SPGWCDeployment
+metadata:
+  labels:
+    app.kubernetes.io/name: spgwcdeployment
+    app.kubernetes.io/instance: spgwc
+    app.kubernetes.io/part-of: sdcore-operator-go
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: sdcore-operator-go
+  name: spgwc
+spec:
+  capacity: 
+    maxSubscribers: 10

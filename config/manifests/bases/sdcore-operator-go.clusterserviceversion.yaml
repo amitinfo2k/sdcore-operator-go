@@ -1,0 +1,45 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: sdcore-operator-go.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: MMEDeployment is the Schema for the mmedeployments API
+      displayName: MMEDeployment
+      kind: MMEDeployment
+      name: mmedeployments.workload.nephio.org
+      version: v1alpha1
+  description: mme
+  displayName: MME Operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - sdcore
+  - mme
+  links:
+  - name: Sdcore Operator Go
+    url: https://sdcore-operator-go.domain
+  maturity: alpha
+  provider:
+    name: GSLab
+  version: 0.0.0

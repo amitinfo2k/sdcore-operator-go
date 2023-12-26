@@ -26,8 +26,11 @@ import (
 
 	v1alpha1 "github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
 	refv1alpha1 "github.com/nephio-project/api/references/v1alpha1"
+
 	//	"github.com/amitinfo2k/sdcore-operator-go/controllers"
+	"github.com/amitinfo2k/sdcore-operator-go/controllers/hss"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers/mme"
+	"github.com/amitinfo2k/sdcore-operator-go/controllers/spgwc"
 	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -92,10 +95,29 @@ func main() {
 		os.Exit(1)
 	}
 
+	//MME
 	schemeBuilder := &runscheme.Builder{GroupVersion: nephiov1alpha1.GroupVersion}
 	schemeBuilder.Register(&v1alpha1.MMEDeployment{}, &v1alpha1.MMEDeploymentList{})
 	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
-		fail(err, "Not able to register UPFDeployment kind")
+		fail(err, "Not able to register MMEDeployment kind")
+	}
+
+	//HSS
+	schemeBuilder.Register(&v1alpha1.HSSDeployment{}, &v1alpha1.HSSDeploymentList{})
+	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
+		fail(err, "Not able to register MMEDeployment kind")
+	}
+
+	//PCRF
+	//schemeBuilder.Register(&v1alpha1.PCRFDeployment{}, &v1alpha1.PCRFDeploymentList{})
+	//if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
+	//		fail(err, "Not able to register MMEDeployment kind")
+	//	}
+
+	//SPGWC
+	schemeBuilder.Register(&v1alpha1.SPGWCDeployment{}, &v1alpha1.SPGWCDeploymentList{})
+	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
+		fail(err, "Not able to register MMEDeployment kind")
 	}
 
 	schemeBuilder = &runscheme.Builder{GroupVersion: nephiov1alpha1.GroupVersion}
@@ -104,6 +126,7 @@ func main() {
 		fail(err, "Not able to register Config.ref kind")
 	}
 
+	//MME
 	if err = (&mme.MMEDeploymentReconciler{
 		Client: manager.GetClient(),
 		Scheme: manager.GetScheme(),
@@ -111,6 +134,23 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "MMEDeployment")
 		os.Exit(1)
 	}
+	//HSS
+	if err = (&hss.HSSDeploymentReconciler{
+		Client: manager.GetClient(),
+		Scheme: manager.GetScheme(),
+	}).SetupWithManager(manager); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "MMEDeployment")
+		os.Exit(1)
+	}
+	//SPGWC
+	if err = (&spgwc.SPGWCDeploymentReconciler{
+		Client: manager.GetClient(),
+		Scheme: manager.GetScheme(),
+	}).SetupWithManager(manager); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "MMEDeployment")
+		os.Exit(1)
+	}
+
 	//+kubebuilder:scaffold:builder
 
 	if err := manager.AddHealthzCheck("healthz", healthz.Ping); err != nil {

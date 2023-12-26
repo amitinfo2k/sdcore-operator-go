@@ -1,0 +1,40 @@
+{
+    "common": {
+      "fdcfg": "conf/hss.conf",
+      "originhost": "hss.omec.svc.cluster.local",
+      "originrealm": "omec.svc.cluster.local",
+      "prom_port": 9089
+    },
+    "hss": {
+      "auditlogname": "",
+      "auditlognumber": 5,
+      "auditlogsize": 20,
+      "casscoreconnections": 2,
+      "cassdb": "vhss",
+      "cassioqueuesize": 32768,
+      "cassiothreads": 2,
+      "cassmaxconnections": 8,
+      "casspwd": "root",
+      "casssrv": "cassandra",
+      "cassusr": "root",
+      "concurrent": 10,
+      "gtwhost": "*",
+      "gtwport": 9080,
+      "logname": "",
+      "lognumber": 5,
+      "logqsize": 8192,
+      "logsize": 20,
+      "numworkers": 4,
+      "optkey": "63bfa50ee6523365ff14c1f45f88737d",
+      "ossfile": "conf/oss.json",
+      "ossport": 9082,
+      "randv": true,
+      "reloadkey": false,
+      "restport": 8080,
+      "statfreq": 2000,
+      "statlogname": "",
+      "statlognumber": 5,
+      "statlogsize": 20,
+      "verifyroamingsubscribers": false
+    }
+  }

@@ -62,6 +62,26 @@ rules:
 - apiGroups:
   - workload.nephio.org
   resources:
+  - hssdeployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - workload.nephio.org
+  resources:
+  - hssdeployments/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - workload.nephio.org
+  resources:
   - mmedeployments
   verbs:
   - create
@@ -75,6 +95,26 @@ rules:
   - workload.nephio.org
   resources:
   - mmedeployments/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - workload.nephio.org
+  resources:
+  - spgwcdeployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - workload.nephio.org
+  resources:
+  - spgwcdeployments/status
   verbs:
   - get
   - patch

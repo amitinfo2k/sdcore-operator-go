@@ -3,6 +3,8 @@
 # It should be run by config/default
 resources:
 - bases/workload.nephio.org_mmedeployments.yaml
+- bases/workload.nephio.org_hssdeployments.yaml
+- bases/workload.nephio.org_spgwcdeployments.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
