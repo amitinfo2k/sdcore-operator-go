@@ -103,22 +103,26 @@ func main() {
 		fail(err, "Not able to register MMEDeployment kind")
 	}
 
+	setupLog.Info("Registering HSS deployment")
 	//HSS
 	schemeBuilder.Register(&v1alpha1.HSSDeployment{}, &v1alpha1.HSSDeploymentList{})
 	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
-		fail(err, "Not able to register MMEDeployment kind")
+		fail(err, "Not able to register HSSDeployment kind")
 	}
+
+	setupLog.Info("Registering PCRF deployment")
 
 	//PCRF
 	schemeBuilder.Register(&v1alpha1.PCRFDeployment{}, &v1alpha1.PCRFDeploymentList{})
 	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
-		fail(err, "Not able to register MMEDeployment kind")
+		fail(err, "Not able to register PCRFDeployment kind")
 	}
+	setupLog.Info("Registering SPGWC deployment")
 
 	//SPGWC
 	schemeBuilder.Register(&v1alpha1.SPGWCDeployment{}, &v1alpha1.SPGWCDeploymentList{})
 	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
-		fail(err, "Not able to register MMEDeployment kind")
+		fail(err, "Not able to register SPGWCDeployment kind")
 	}
 
 	schemeBuilder = &runscheme.Builder{GroupVersion: nephiov1alpha1.GroupVersion}
@@ -135,28 +139,31 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "MMEDeployment")
 		os.Exit(1)
 	}
+	setupLog.Info("Registering HSS resconciler")
 	//HSS
 	if err = (&hss.HSSDeploymentReconciler{
 		Client: manager.GetClient(),
 		Scheme: manager.GetScheme(),
 	}).SetupWithManager(manager); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "MMEDeployment")
+		setupLog.Error(err, "unable to create controller", "controller", "HSSDeployment")
 		os.Exit(1)
 	}
+	setupLog.Info("Registering SPGWC resconciler")
 	//SPGWC
 	if err = (&spgwc.SPGWCDeploymentReconciler{
 		Client: manager.GetClient(),
 		Scheme: manager.GetScheme(),
 	}).SetupWithManager(manager); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "MMEDeployment")
+		setupLog.Error(err, "unable to create controller", "controller", "SPGWCDeployment")
 		os.Exit(1)
 	}
+	setupLog.Info("Registering PCRF resconciler")
 	//PCRF
 	if err = (&pcrf.PCRFDeploymentReconciler{
 		Client: manager.GetClient(),
 		Scheme: manager.GetScheme(),
 	}).SetupWithManager(manager); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "MMEDeployment")
+		setupLog.Error(err, "unable to create controller", "controller", "PCRFDeployment")
 		os.Exit(1)
 	}
 
