@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 set -ex
-cp /bin/hss /tmp/coredump/
 
 CONF_DIR="/opt/c3po/hss/conf"
 LOGS_DIR="/opt/c3po/hss/logs"

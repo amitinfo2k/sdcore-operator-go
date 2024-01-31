@@ -3,9 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-while ! curl -f --connect-timeout 5 http://spgwc:8080/startup
+while ! curl -f --connect-timeout 5 http://spgwc.omec.svc:8080/startup
 do
   echo Waiting for SPGWC to be ready
+  nslookup spgwc.omec.svc
   sleep 5
 done
 echo SPGWC is ready

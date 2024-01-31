@@ -75,7 +75,7 @@ func createDeployment(log logr.Logger, configMapVersion string, hssDeployment *v
 							ImagePullPolicy: apiv1.PullIfNotPresent,
 							SecurityContext: initSecurityContext,
 							Command:         []string{"sh", "-xc"},
-							Args:            []string{"sh /opt/c3po/hss/scripts/hss-bootstrap.sh"},
+							Args:            []string{"bash /opt/c3po/hss/scripts/hss-bootstrap.sh"},
 							VolumeMounts: []apiv1.VolumeMount{
 								{
 									MountPath: "/opt/c3po/hss/scripts",

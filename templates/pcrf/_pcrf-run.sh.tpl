@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 set -ex
-cp /bin/pcrf /tmp/coredump/
 
 CONF_DIR="/opt/c3po/pcrf/conf"
 LOGS_DIR="/opt/c3po/pcrf/logs"

@@ -214,8 +214,11 @@ func createConfigMap(log logr.Logger, pcrfDeployment *v1alpha1.PCRFDeployment) (
 			Name:      instanceName,
 		},
 		Data: map[string]string{
-			"config.json": configJson[0],
-			"s6a_fd.conf": configJson[1],
+			"acl.conf":                configJson[0],
+			"oss.json":                configJson[1],
+			"pcrf.json":               configJson[2],
+			"pcrf.conf":               configJson[3],
+			"subscriber_mapping.json": configJson[4],
 		},
 	}
 	log.Info("createConfigMap--")
@@ -255,8 +258,8 @@ func createScriptConfigMap(log logr.Logger, pcrfDeployment *v1alpha1.PCRFDeploym
 			Name:      instanceName,
 		},
 		Data: map[string]string{
-			"pcrf-init.sh": pcrfScriptsConfig[0],
-			"pcrf-run.sh":  pcrfScriptsConfig[1],
+			"pcrf-bootstrap.sh": pcrfScriptsConfig[0],
+			"pcrf-run.sh":       pcrfScriptsConfig[1],
 		},
 	}
 	log.Info("createScriptConfigMap--")

@@ -76,7 +76,7 @@ func createDeployment(log logr.Logger, configMapVersion string, spgwcDeployment 
 							ImagePullPolicy: apiv1.PullAlways,
 							SecurityContext: initSecurityContext,
 							Command:         []string{"sh", "-xc"},
-							Args:            []string{"sh /opt/cp/scripts/spgwc-run.sh ngic_controlplane"},
+							Args:            []string{"bash /opt/cp/scripts/spgwc-run.sh ngic_controlplane"},
 
 							Env: []apiv1.EnvVar{
 								{
@@ -104,7 +104,7 @@ func createDeployment(log logr.Logger, configMapVersion string, spgwcDeployment 
 									Name:      "scripts",
 								},
 								{
-									MountPath: "/opt/cp/config",
+									MountPath: "/etc/cp/config",
 									Name:      "configs",
 								},
 							},
@@ -116,7 +116,7 @@ func createDeployment(log logr.Logger, configMapVersion string, spgwcDeployment 
 							ImagePullPolicy: apiv1.PullAlways,
 							SecurityContext: initSecurityContext,
 							Command:         []string{"sh", "-xc"},
-							Args:            []string{"sh /opt/cp/scripts/spgwc-run.sh gx-app"},
+							Args:            []string{"bash /opt/cp/scripts/spgwc-run.sh gx-app"},
 							Env: []apiv1.EnvVar{
 								{
 									Name: "POD_IP",
@@ -137,7 +137,7 @@ func createDeployment(log logr.Logger, configMapVersion string, spgwcDeployment 
 									Name:      "scripts",
 								},
 								{
-									MountPath: "/opt/cp/config",
+									MountPath: "/etc/cp/config",
 									Name:      "configs",
 								},
 							},
@@ -158,7 +158,7 @@ func createDeployment(log logr.Logger, configMapVersion string, spgwcDeployment 
 									Name:      "scripts",
 								},
 								{
-									MountPath: "/opt/cp/config",
+									MountPath: "/etc/cp/config",
 									Name:      "configs",
 								},
 							},

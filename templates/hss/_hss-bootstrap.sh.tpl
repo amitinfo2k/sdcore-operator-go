@@ -3,8 +3,7 @@
 # Copyright 2019-present Open Networking Foundation
 #
 # SPDX-License-Identifier: Apache-2.0
-
-set -ex
+echo "HSS boot strap"
 
 function provision_users() {
     count=${1}

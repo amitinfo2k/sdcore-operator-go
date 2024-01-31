@@ -27,9 +27,10 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o ma
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 #FROM gcr.io/distroless/static:nonroot
 FROM alpine:3.19.0
+RUN apk update && apk add bash
 WORKDIR /
 COPY --from=builder /workspace/manager .
 COPY templates /templates
 USER 65532:65532
 
-ENTRYPOINT ["/manager"]
+#ENTRYPOINT ["/manager"]
