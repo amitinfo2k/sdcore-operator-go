@@ -8,19 +8,19 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func createNfDeploymentStatus(deployment *appsv1.Deployment, config4gDeployment *v1alpha1.PCRFDeployment) (nephiov1alpha1.NFDeploymentStatus, bool) {
+func createNfDeploymentStatus(deployment *appsv1.Deployment, config4gDeployment *v1alpha1.Config4GDeployment) (nephiov1alpha1.NFDeploymentStatus, bool) {
 	nfDeploymentStatus := nephiov1alpha1.NFDeploymentStatus{
 		ObservedGeneration: int32(deployment.Generation),
 		Conditions:         config4gDeployment.Status.Conditions,
 	}
 
-	// Return initial status if there are no status update happened for the PCRFdeployment
+	// Return initial status if there are no status update happened for the Config4Gdeployment
 	if len(config4gDeployment.Status.Conditions) == 0 {
 		nfDeploymentStatus.Conditions = append(nfDeploymentStatus.Conditions, metav1.Condition{
 			Type:               string(nephiov1alpha1.Reconciling),
 			Status:             metav1.ConditionFalse,
 			Reason:             "MinimumReplicasNotAvailable",
-			Message:            "PCRFDeployment pod(s) is(are) starting.",
+			Message:            "Config4GDeployment pod(s) is(are) starting.",
 			LastTransitionTime: metav1.Now(),
 		})
 
@@ -33,7 +33,7 @@ func createNfDeploymentStatus(deployment *appsv1.Deployment, config4gDeployment 
 	lastDeploymentCondition := deployment.Status.Conditions[0]
 	lastAmfDeploymentCondition := config4gDeployment.Status.Conditions[len(config4gDeployment.Status.Conditions)-1]
 
-	// Deployemnt and PCRFDeployment have different names for processing state, hence we check if one is processing another is reconciling, then state is equal
+	// Deployemnt and Config4GDeployment have different names for processing state, hence we check if one is processing another is reconciling, then state is equal
 	if (lastDeploymentCondition.Type == appsv1.DeploymentProgressing) && (lastAmfDeploymentCondition.Type == string(nephiov1alpha1.Reconciling)) {
 		return nfDeploymentStatus, false
 	}
@@ -49,7 +49,7 @@ func createNfDeploymentStatus(deployment *appsv1.Deployment, config4gDeployment 
 			Type:               string(nephiov1alpha1.Available),
 			Status:             metav1.ConditionTrue,
 			Reason:             "MinimumReplicasAvailable",
-			Message:            "PCRFDeployment pods are available.",
+			Message:            "Config4GDeployment pods are available.",
 			LastTransitionTime: metav1.Now(),
 		})
 
@@ -58,7 +58,7 @@ func createNfDeploymentStatus(deployment *appsv1.Deployment, config4gDeployment 
 			Type:               string(nephiov1alpha1.Reconciling),
 			Status:             metav1.ConditionFalse,
 			Reason:             "MinimumReplicasNotAvailable",
-			Message:            "PCRFDeployment pod(s) is(are) starting.",
+			Message:            "Config4GDeployment pod(s) is(are) starting.",
 			LastTransitionTime: metav1.Now(),
 		})
 
@@ -67,7 +67,7 @@ func createNfDeploymentStatus(deployment *appsv1.Deployment, config4gDeployment 
 			Type:               string(nephiov1alpha1.Stalled),
 			Status:             metav1.ConditionFalse,
 			Reason:             "MinimumReplicasNotAvailable",
-			Message:            "PCRFDeployment pod(s) is(are) failing.",
+			Message:            "Config4GDeployment pod(s) is(are) failing.",
 			LastTransitionTime: metav1.Now(),
 		})
 	}

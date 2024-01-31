@@ -11,12 +11,12 @@ import (
 	//"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func createDeployment(log logr.Logger, configMapVersion string, config4gDeployment *v1alpha1.PCRFDeployment) (*appsv1.Deployment, error) {
+func createDeployment(log logr.Logger, configMapVersion string, config4gDeployment *v1alpha1.Config4GDeployment) (*appsv1.Deployment, error) {
 	namespace := config4gDeployment.Namespace
 	instanceName := config4gDeployment.Name
 	spec := config4gDeployment.Spec
 
-	previleged := true
+	//previleged := true
 	runAsUser := int64(0)
 	mode := int32(493)
 
@@ -32,20 +32,12 @@ func createDeployment(log logr.Logger, configMapVersion string, config4gDeployme
 
 	podAnnotations := make(map[string]string)
 	podAnnotations[controllers.ConfigMapVersionAnnotation] = configMapVersion
-	//podAnnotations[controllers.NetworksAnnotation] = networkAttachmentDefinitionNetworks
+	podAnnotations[controllers.Config4GAnnotation] = "[{\"path\":\"/metrics\",\"port\":9089,\"schema\":\"HTTP\"}]"
 
 	initSecurityContext := &apiv1.SecurityContext{
-		Privileged: &previleged,
-		RunAsUser:  &runAsUser,
+		//Privileged: &previleged,
+		RunAsUser: &runAsUser,
 	}
-
-	/*securityContext := &apiv1.SecurityContext{
-		Capabilities: &apiv1.Capabilities{
-			Add: []apiv1.Capability{"NET_ADMIN"},
-		},
-	}
-
-	*/
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -67,37 +59,30 @@ func createDeployment(log logr.Logger, configMapVersion string, config4gDeployme
 					},
 				},
 				Spec: apiv1.PodSpec{
-					InitContainers: []apiv1.Container{
-						{
-							Name:            "config4g-bootstrap",
-							Image:           controllers.PCRFDbImage,
-							ImagePullPolicy: apiv1.PullIfNotPresent,
-							SecurityContext: initSecurityContext,
-							Command:         []string{"sh", "-xc"},
-							Args:            []string{"sh /opt/c3po/config4g/config4g-bootstrap.sh"},
-							VolumeMounts: []apiv1.VolumeMount{
-								{
-									MountPath: "/opt/c3po/config4g",
-									Name:      "scripts",
-								},
-							},
-						},
-					},
 					Containers: []apiv1.Container{
 						{
 							Name:            "config4g",
-							Image:           controllers.PCRFImage,
+							Image:           controllers.Config4GImage,
 							ImagePullPolicy: apiv1.PullAlways,
 							SecurityContext: initSecurityContext,
-							Command:         []string{"bash", "-c", "/opt/c3po/config4g/scripts/config4g-run.sh"},
-
+							Command:         []string{"bash", "-c", "/free5gc/script/config4g-run.sh"},
+							Env: []apiv1.EnvVar{
+								{
+									Name:  "CONFIGPOD_DEPLOYMENT",
+									Value: "4G",
+								},
+								{
+									Name:  "MANAGED_BY_CONFIG_POD",
+									Value: "true",
+								},
+							},
 							VolumeMounts: []apiv1.VolumeMount{
 								{
-									MountPath: "/opt/c3po/config4g/scripts",
+									MountPath: "/free5gc/script/",
 									Name:      "scripts",
 								},
 								{
-									MountPath: "/etc/config4g/conf",
+									MountPath: "/free5gc/config/",
 									Name:      "configs",
 								},
 							},
@@ -138,7 +123,7 @@ func createDeployment(log logr.Logger, configMapVersion string, config4gDeployme
 	return deployment, nil
 }
 
-func createService(config4gDeployment *v1alpha1.PCRFDeployment) *apiv1.Service {
+func createService(config4gDeployment *v1alpha1.Config4GDeployment) *apiv1.Service {
 	namespace := config4gDeployment.Namespace
 	instanceName := config4gDeployment.Name
 
@@ -155,22 +140,16 @@ func createService(config4gDeployment *v1alpha1.PCRFDeployment) *apiv1.Service {
 			Selector: labels,
 			Ports: []apiv1.ServicePort{
 				{
-					Name:     "gx",
+					Name:     "urlport",
 					Protocol: apiv1.ProtocolTCP,
-					Port:     3868,
-					NodePort: 31868,
+					Port:     5000,
+					NodePort: 30500,
 				},
 				{
 					Name:     "prometheus-exporter",
 					Protocol: apiv1.ProtocolTCP,
 					Port:     9089,
-					NodePort: 30087,
-				},
-				{
-					Name:     "config-port",
-					Protocol: apiv1.ProtocolTCP,
-					Port:     8080,
-					NodePort: 30082,
+					NodePort: 30084,
 				},
 			},
 			Type: apiv1.ServiceTypeNodePort,
@@ -180,7 +159,7 @@ func createService(config4gDeployment *v1alpha1.PCRFDeployment) *apiv1.Service {
 	return service
 }
 
-func createConfigMap(log logr.Logger, config4gDeployment *v1alpha1.PCRFDeployment) (*apiv1.ConfigMap, error) {
+func createConfigMap(log logr.Logger, config4gDeployment *v1alpha1.Config4GDeployment) (*apiv1.ConfigMap, error) {
 	namespace := config4gDeployment.Namespace
 	//instanceName := config4gDeployment.Name
 	instanceName := "config4g-configs"
@@ -188,7 +167,7 @@ func createConfigMap(log logr.Logger, config4gDeployment *v1alpha1.PCRFDeploymen
 
 	/*n2ip, err := controllers.GetFirstInterfaceConfigIPv4(config4gDeployment.Spec.Interfaces, "n2")
 	if err != nil {
-		log.Error(err, "Interface N2 not found in PCRFDeployment Spec")
+		log.Error(err, "Interface N2 not found in Config4GDeployment Spec")
 		return nil, err
 	}*/
 
@@ -200,7 +179,7 @@ func createConfigMap(log logr.Logger, config4gDeployment *v1alpha1.PCRFDeploymen
 
 	configJson, err := renderConfigFiles(log, templateValues)
 	if err != nil {
-		log.Error(err, "Could not render PCRF configuration template.")
+		log.Error(err, "Could not render Config4G configuration template.")
 		return nil, err
 	}
 
@@ -214,25 +193,21 @@ func createConfigMap(log logr.Logger, config4gDeployment *v1alpha1.PCRFDeploymen
 			Name:      instanceName,
 		},
 		Data: map[string]string{
-			"acl.conf":                configJson[0],
-			"oss.json":                configJson[1],
-			"config4g.json":               configJson[2],
-			"config4g.conf":               configJson[3],
-			"subscriber_mapping.json": configJson[4],
+			"webuicfg.conf": configJson[0],
 		},
 	}
 	log.Info("createConfigMap--")
 	return configMap, nil
 }
 
-func createScriptConfigMap(log logr.Logger, config4gDeployment *v1alpha1.PCRFDeployment) (*apiv1.ConfigMap, error) {
+func createScriptConfigMap(log logr.Logger, config4gDeployment *v1alpha1.Config4GDeployment) (*apiv1.ConfigMap, error) {
 	namespace := config4gDeployment.Namespace
 	instanceName := "config4g-scripts"
 	log.Info("createScriptConfigMap++", "instanceName=", instanceName)
 
 	/*n2ip, err := controllers.GetFirstInterfaceConfigIPv4(config4gDeployment.Spec.Interfaces, "n2")
 	if err != nil {
-		log.Error(err, "Interface N2 not found in PCRFDeployment Spec")
+		log.Error(err, "Interface N2 not found in Config4GDeployment Spec")
 		return nil, err
 	}*/
 
@@ -244,7 +219,7 @@ func createScriptConfigMap(log logr.Logger, config4gDeployment *v1alpha1.PCRFDep
 
 	config4gScriptsConfig, err := renderScriptFiles(log, templateValues)
 	if err != nil {
-		log.Error(err, "Could not render PCRF Scripts configuration template.")
+		log.Error(err, "Could not render Config4G Scripts configuration template.")
 		return nil, err
 	}
 
@@ -258,15 +233,14 @@ func createScriptConfigMap(log logr.Logger, config4gDeployment *v1alpha1.PCRFDep
 			Name:      instanceName,
 		},
 		Data: map[string]string{
-			"config4g-bootstrap.sh": config4gScriptsConfig[0],
-			"config4g-run.sh":       config4gScriptsConfig[1],
+			"config4g-run.sh": config4gScriptsConfig[0],
 		},
 	}
 	log.Info("createScriptConfigMap--")
 	return configMap, nil
 }
 
-func createResourceRequirements(config4gDeploymentSpec v1alpha1.PCRFDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
+func createResourceRequirements(config4gDeploymentSpec v1alpha1.Config4GDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
 	// TODO: Requirements should be calculated based on DL, UL
 	// TODO: increase number of recpicas based on NFDeployment.Capacity.MaxSessions
 
@@ -304,7 +278,7 @@ func createResourceRequirements(config4gDeploymentSpec v1alpha1.PCRFDeploymentSp
 	return replicas, &resources, nil
 }
 
-/*func createNetworkAttachmentDefinitionNetworks(templateName string, config4gDeploymentSpec *v1alpha1.PCRFDeploymentSpec) (string, error) {
+/*func createNetworkAttachmentDefinitionNetworks(templateName string, config4gDeploymentSpec *v1alpha1.Config4GDeploymentSpec) (string, error) {
 	return controllers.CreateNetworkAttachmentDefinitionNetworks(templateName, map[string][]nephiov1alpha1.InterfaceConfig{
 		"n2": controllers.GetInterfaceConfigs(config4gDeploymentSpec.Interfaces, "n2"),
 	})

@@ -1,4 +1,4 @@
-package pcrf
+package config4g
 
 import (
 	"bytes"
@@ -17,7 +17,7 @@ func renderConfigFiles(log logr.Logger, values configurationTemplateValues) ([]s
 	var buffer bytes.Buffer
 	var theArray []string
 
-	xfiles := [5]string{"templates/pcrf/acl.conf", "templates/pcrf/oss.json", "templates/pcrf/pcrf.json", "templates/pcrf/pcrf.conf", "templates/pcrf/subscriber_mapping.json"}
+	xfiles := [5]string{"templates/config4g/webuicfg.conf"}
 	for i, v := range xfiles {
 		log.Info("renderConfigFiles++", "i=", i, "v=", v)
 		configTemplate, err := template.ParseFiles(v)
@@ -40,7 +40,7 @@ func renderConfigFiles(log logr.Logger, values configurationTemplateValues) ([]s
 func renderScriptFiles(log logr.Logger, values configurationTemplateValues) ([]string, error) {
 	var buffer bytes.Buffer
 	var theArray []string
-	xfiles := [2]string{"templates/pcrf/_pcrf-bootstrap.sh.tpl", "templates/pcrf/_pcrf-run.sh.tpl"}
+	xfiles := [2]string{"templates/config4g/_config4g-run.s.tpl"}
 
 	for i, v := range xfiles {
 		log.Info("renderConfigFiles++", "i=", i, "v=", v)
