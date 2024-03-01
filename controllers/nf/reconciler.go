@@ -100,7 +100,7 @@ func (r *NFDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		Client: r.Client,
 		Scheme: r.Scheme,
 	}
-	
+
 	log.Info("Reconcile:nfDeployment.Spec.Provider: ", nfDeployment)
 
 	switch nfDeployment.Spec.Provider {
