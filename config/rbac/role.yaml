@@ -60,6 +60,34 @@ rules:
   - list
   - watch
 - apiGroups:
+  - ref.nephio.org
+  resources:
+  - configs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - workload.nephio.org
+  resources:
+  - config4gdeployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - workload.nephio.org
+  resources:
+  - config4gdeployments/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - workload.nephio.org
   resources:
   - hssdeployments
@@ -95,6 +123,26 @@ rules:
   - workload.nephio.org
   resources:
   - mmedeployments/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - workload.nephio.org
+  resources:
+  - nfdeployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - workload.nephio.org
+  resources:
+  - nfdeployments/status
   verbs:
   - get
   - patch

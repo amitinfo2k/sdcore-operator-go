@@ -33,4 +33,4 @@ COPY --from=builder /workspace/manager .
 COPY templates /templates
 USER 65532:65532
 
-#ENTRYPOINT ["/manager"]
+ENTRYPOINT ["/manager"]

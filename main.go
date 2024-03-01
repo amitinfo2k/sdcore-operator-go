@@ -25,14 +25,9 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	v1alpha1 "github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
-	refv1alpha1 "github.com/nephio-project/api/references/v1alpha1"
-
-	//	"github.com/amitinfo2k/sdcore-operator-go/controllers"
-	"github.com/amitinfo2k/sdcore-operator-go/controllers/hss"
-	"github.com/amitinfo2k/sdcore-operator-go/controllers/mme"
-	"github.com/amitinfo2k/sdcore-operator-go/controllers/pcrf"
-	"github.com/amitinfo2k/sdcore-operator-go/controllers/spgwc"
+	"github.com/amitinfo2k/sdcore-operator-go/controllers/nf"
 	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
+	refv1alpha1 "github.com/nephio-project/api/references/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -96,74 +91,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	//MME
 	schemeBuilder := &runscheme.Builder{GroupVersion: nephiov1alpha1.GroupVersion}
-	schemeBuilder.Register(&v1alpha1.MMEDeployment{}, &v1alpha1.MMEDeploymentList{})
+
+	schemeBuilder.Register(&nephiov1alpha1.NFDeployment{}, &nephiov1alpha1.NFDeploymentList{})
 	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
-		fail(err, "Not able to register MMEDeployment kind")
+		fail(err, "Not able to register NFDeployment kind")
 	}
 
-	setupLog.Info("Registering HSS deployment")
-	//HSS
-	schemeBuilder.Register(&v1alpha1.HSSDeployment{}, &v1alpha1.HSSDeploymentList{})
-	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
-		fail(err, "Not able to register HSSDeployment kind")
-	}
-
-	setupLog.Info("Registering PCRF deployment")
-
-	//PCRF
-	schemeBuilder.Register(&v1alpha1.PCRFDeployment{}, &v1alpha1.PCRFDeploymentList{})
-	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
-		fail(err, "Not able to register PCRFDeployment kind")
-	}
-	setupLog.Info("Registering SPGWC deployment")
-
-	//SPGWC
-	schemeBuilder.Register(&v1alpha1.SPGWCDeployment{}, &v1alpha1.SPGWCDeploymentList{})
-	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
-		fail(err, "Not able to register SPGWCDeployment kind")
-	}
-
-	schemeBuilder = &runscheme.Builder{GroupVersion: nephiov1alpha1.GroupVersion}
+	schemeBuilder = &runscheme.Builder{GroupVersion: refv1alpha1.GroupVersion}
 	schemeBuilder.Register(&refv1alpha1.Config{}, &refv1alpha1.ConfigList{})
 	if err := schemeBuilder.AddToScheme(manager.GetScheme()); err != nil {
 		fail(err, "Not able to register Config.ref kind")
 	}
 
-	//MME
-	if err = (&mme.MMEDeploymentReconciler{
+	if err = (&nf.NFDeploymentReconciler{
 		Client: manager.GetClient(),
 		Scheme: manager.GetScheme(),
 	}).SetupWithManager(manager); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "MMEDeployment")
-		os.Exit(1)
-	}
-	setupLog.Info("Registering HSS resconciler")
-	//HSS
-	if err = (&hss.HSSDeploymentReconciler{
-		Client: manager.GetClient(),
-		Scheme: manager.GetScheme(),
-	}).SetupWithManager(manager); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "HSSDeployment")
-		os.Exit(1)
-	}
-	setupLog.Info("Registering SPGWC resconciler")
-	//SPGWC
-	if err = (&spgwc.SPGWCDeploymentReconciler{
-		Client: manager.GetClient(),
-		Scheme: manager.GetScheme(),
-	}).SetupWithManager(manager); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "SPGWCDeployment")
-		os.Exit(1)
-	}
-	setupLog.Info("Registering PCRF resconciler")
-	//PCRF
-	if err = (&pcrf.PCRFDeploymentReconciler{
-		Client: manager.GetClient(),
-		Scheme: manager.GetScheme(),
-	}).SetupWithManager(manager); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "PCRFDeployment")
+		setupLog.Error(err, "unable to create controller", "controller", "NFDeployment")
 		os.Exit(1)
 	}
 
