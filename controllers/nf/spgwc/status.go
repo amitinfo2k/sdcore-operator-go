@@ -1,14 +1,13 @@
 package spgwc
 
 import (
-	"github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
 	//"github.com/amitinfo2k/sdcore-operator-go/controllers"
 	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func createNfDeploymentStatus(deployment *appsv1.Deployment, spgwcDeployment *v1alpha1.SPGWCDeployment) (nephiov1alpha1.NFDeploymentStatus, bool) {
+func createNfDeploymentStatus(deployment *appsv1.Deployment, spgwcDeployment *nephiov1alpha1.NFDeployment) (nephiov1alpha1.NFDeploymentStatus, bool) {
 	nfDeploymentStatus := nephiov1alpha1.NFDeploymentStatus{
 		ObservedGeneration: int32(deployment.Generation),
 		Conditions:         spgwcDeployment.Status.Conditions,

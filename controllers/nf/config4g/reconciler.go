@@ -3,11 +3,9 @@ package config4g
 import (
 	"context"
 	"fmt"
-	"time"
-
-	"github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers"
-
+	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
+	"time"
 	//
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -24,15 +22,6 @@ import (
 type Config4GDeploymentReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
-}
-
-// Sets up the controller with the Manager
-func (r *Config4GDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(new(v1alpha1.Config4GDeployment)).
-		Owns(new(appsv1.Deployment)).
-		Owns(new(apiv1.ConfigMap)).
-		Complete(r)
 }
 
 // +kubebuilder:rbac:groups=workload.nephio.org,resources=config4gdeployments,verbs=get;list;watch;create;update;patch;delete
@@ -56,7 +45,7 @@ func (r *Config4GDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error 
 func (r *Config4GDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx).WithValues("Config4GDeployment", req.NamespacedName)
 
-	config4gDeployment := new(v1alpha1.Config4GDeployment)
+	config4gDeployment := new(nephiov1alpha1.NFDeployment)
 	err := r.Client.Get(ctx, req.NamespacedName, config4gDeployment)
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
@@ -218,10 +207,10 @@ func (r *Config4GDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.R
 	return reconcile.Result{}, nil
 }
 
-func (r *Config4GDeploymentReconciler) syncStatus(ctx context.Context, deployment *appsv1.Deployment, config4gDeployment *v1alpha1.Config4GDeployment) error {
+func (r *Config4GDeploymentReconciler) syncStatus(ctx context.Context, deployment *appsv1.Deployment, config4gDeployment *nephiov1alpha1.NFDeployment) error {
 	if nfDeploymentStatus, update := createNfDeploymentStatus(deployment, config4gDeployment); update {
 		config4gDeployment = config4gDeployment.DeepCopy()
-		config4gDeployment.Status.NFDeploymentStatus = nfDeploymentStatus
+		config4gDeployment.Status = nfDeploymentStatus
 		return r.Status().Update(ctx, config4gDeployment)
 	} else {
 		return nil

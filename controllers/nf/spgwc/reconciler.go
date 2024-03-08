@@ -3,11 +3,9 @@ package spgwc
 import (
 	"context"
 	"fmt"
-	"time"
-
-	"github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers"
-
+	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
+	"time"
 	//
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -24,15 +22,6 @@ import (
 type SPGWCDeploymentReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
-}
-
-// Sets up the controller with the Manager
-func (r *SPGWCDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(new(v1alpha1.SPGWCDeployment)).
-		Owns(new(appsv1.Deployment)).
-		Owns(new(apiv1.ConfigMap)).
-		Complete(r)
 }
 
 // +kubebuilder:rbac:groups=workload.nephio.org,resources=spgwcdeployments,verbs=get;list;watch;create;update;patch;delete
@@ -56,7 +45,7 @@ func (r *SPGWCDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 func (r *SPGWCDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx).WithValues("SPGWCDeployment", req.NamespacedName)
 
-	spgwcDeployment := new(v1alpha1.SPGWCDeployment)
+	spgwcDeployment := new(nephiov1alpha1.NFDeployment)
 	err := r.Client.Get(ctx, req.NamespacedName, spgwcDeployment)
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
@@ -218,10 +207,10 @@ func (r *SPGWCDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	return reconcile.Result{}, nil
 }
 
-func (r *SPGWCDeploymentReconciler) syncStatus(ctx context.Context, deployment *appsv1.Deployment, spgwcDeployment *v1alpha1.SPGWCDeployment) error {
+func (r *SPGWCDeploymentReconciler) syncStatus(ctx context.Context, deployment *appsv1.Deployment, spgwcDeployment *nephiov1alpha1.NFDeployment) error {
 	if nfDeploymentStatus, update := createNfDeploymentStatus(deployment, spgwcDeployment); update {
 		spgwcDeployment = spgwcDeployment.DeepCopy()
-		spgwcDeployment.Status.NFDeploymentStatus = nfDeploymentStatus
+		spgwcDeployment.Status = nfDeploymentStatus
 		return r.Status().Update(ctx, spgwcDeployment)
 	} else {
 		return nil

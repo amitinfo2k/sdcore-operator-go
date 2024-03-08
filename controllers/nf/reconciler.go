@@ -72,7 +72,6 @@ func (r *NFDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 func (r *NFDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx).WithValues("NFDeployment", req.NamespacedName)
 
-	log.Info("Reconcile++")
 	nfDeployment := new(nephiov1alpha1.NFDeployment)
 	err := r.Client.Get(ctx, req.NamespacedName, nfDeployment)
 	if err != nil {
@@ -100,8 +99,10 @@ func (r *NFDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		Client: r.Client,
 		Scheme: r.Scheme,
 	}
-
-	log.Info("Reconcile:nfDeployment.Spec.Provider: ", nfDeployment)
+	config4gReconciler := &mme.Config4GDeploymentReconciler{
+		Client: r.Client,
+		Scheme: r.Scheme,
+	}
 
 	switch nfDeployment.Spec.Provider {
 	//	case "upf.free5gc.io":
@@ -117,6 +118,9 @@ func (r *NFDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		spgwcresult, _ := spgwcReconciler.Reconcile(ctx, req)
 		return spgwcresult, nil
 	case "mme.sdcore4g.io":
+		mmeresult, _ := mmeReconciler.Reconcile(ctx, req)
+		return mmeresult, nil
+	case "config4g.sdcore4g.io":
 		mmeresult, _ := mmeReconciler.Reconcile(ctx, req)
 		return mmeresult, nil
 	default:

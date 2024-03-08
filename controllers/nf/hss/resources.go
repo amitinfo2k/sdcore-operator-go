@@ -1,9 +1,9 @@
 package hss
 
 import (
-	"github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers"
 	"github.com/go-logr/logr"
+	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
@@ -11,7 +11,7 @@ import (
 	//"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func createDeployment(log logr.Logger, configMapVersion string, hssDeployment *v1alpha1.HSSDeployment) (*appsv1.Deployment, error) {
+func createDeployment(log logr.Logger, configMapVersion string, hssDeployment *nephiov1alpha1.NFDeployment) (*appsv1.Deployment, error) {
 	namespace := hssDeployment.Namespace
 	instanceName := hssDeployment.Name
 	spec := hssDeployment.Spec
@@ -149,7 +149,7 @@ func createDeployment(log logr.Logger, configMapVersion string, hssDeployment *v
 	return deployment, nil
 }
 
-func createService(hssDeployment *v1alpha1.HSSDeployment) *apiv1.Service {
+func createService(hssDeployment *nephiov1alpha1.NFDeployment) *apiv1.Service {
 	namespace := hssDeployment.Namespace
 	instanceName := hssDeployment.Name
 
@@ -191,7 +191,7 @@ func createService(hssDeployment *v1alpha1.HSSDeployment) *apiv1.Service {
 	return service
 }
 
-func createConfigMap(log logr.Logger, hssDeployment *v1alpha1.HSSDeployment) (*apiv1.ConfigMap, error) {
+func createConfigMap(log logr.Logger, hssDeployment *nephiov1alpha1.NFDeployment) (*apiv1.ConfigMap, error) {
 	namespace := hssDeployment.Namespace
 	//instanceName := hssDeployment.Name
 	instanceName := "hss-configs"
@@ -235,7 +235,7 @@ func createConfigMap(log logr.Logger, hssDeployment *v1alpha1.HSSDeployment) (*a
 	return configMap, nil
 }
 
-func createScriptConfigMap(log logr.Logger, hssDeployment *v1alpha1.HSSDeployment) (*apiv1.ConfigMap, error) {
+func createScriptConfigMap(log logr.Logger, hssDeployment *nephiov1alpha1.NFDeployment) (*apiv1.ConfigMap, error) {
 	namespace := hssDeployment.Namespace
 	instanceName := "hss-scripts"
 	log.Info("createScriptConfigMap++", "instanceName=", instanceName)
@@ -276,7 +276,7 @@ func createScriptConfigMap(log logr.Logger, hssDeployment *v1alpha1.HSSDeploymen
 	return configMap, nil
 }
 
-func createResourceRequirements(hssDeploymentSpec v1alpha1.HSSDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
+func createResourceRequirements(hssDeploymentSpec nephiov1alpha1.NFDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
 	// TODO: Requirements should be calculated based on DL, UL
 	// TODO: increase number of recpicas based on NFDeployment.Capacity.MaxSessions
 
@@ -314,7 +314,7 @@ func createResourceRequirements(hssDeploymentSpec v1alpha1.HSSDeploymentSpec) (i
 	return replicas, &resources, nil
 }
 
-/*func createNetworkAttachmentDefinitionNetworks(templateName string, hssDeploymentSpec *v1alpha1.HSSDeploymentSpec) (string, error) {
+/*func createNetworkAttachmentDefinitionNetworks(templateName string, hssDeploymentSpec *nephiov1alpha1.NFDeploymentSpec) (string, error) {
 	return controllers.CreateNetworkAttachmentDefinitionNetworks(templateName, map[string][]nephiov1alpha1.InterfaceConfig{
 		"n2": controllers.GetInterfaceConfigs(hssDeploymentSpec.Interfaces, "n2"),
 	})

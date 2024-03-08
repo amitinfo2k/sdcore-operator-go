@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers"
-
+	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
 	//
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -24,15 +23,6 @@ import (
 type HSSDeploymentReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
-}
-
-// Sets up the controller with the Manager
-func (r *HSSDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(new(v1alpha1.HSSDeployment)).
-		Owns(new(appsv1.Deployment)).
-		Owns(new(apiv1.ConfigMap)).
-		Complete(r)
 }
 
 // +kubebuilder:rbac:groups=workload.nephio.org,resources=hssdeployments,verbs=get;list;watch;create;update;patch;delete
@@ -54,9 +44,9 @@ func (r *HSSDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
 func (r *HSSDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := log.FromContext(ctx).WithValues("HSSDeployment", req.NamespacedName)
+	log := log.FromContext(ctx).WithValues("NFDeployment", req.NamespacedName, "NF", "MME")
 
-	hssDeployment := new(v1alpha1.HSSDeployment)
+	hssDeployment := new(nephiov1alpha1.NFDeployment)
 	err := r.Client.Get(ctx, req.NamespacedName, hssDeployment)
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
@@ -218,10 +208,10 @@ func (r *HSSDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	return reconcile.Result{}, nil
 }
 
-func (r *HSSDeploymentReconciler) syncStatus(ctx context.Context, deployment *appsv1.Deployment, hssDeployment *v1alpha1.HSSDeployment) error {
+func (r *HSSDeploymentReconciler) syncStatus(ctx context.Context, deployment *appsv1.Deployment, hssDeployment *nephiov1alpha1.NFDeployment) error {
 	if nfDeploymentStatus, update := createNfDeploymentStatus(deployment, hssDeployment); update {
 		hssDeployment = hssDeployment.DeepCopy()
-		hssDeployment.Status.NFDeploymentStatus = nfDeploymentStatus
+		hssDeployment.Status = nfDeploymentStatus
 		return r.Status().Update(ctx, hssDeployment)
 	} else {
 		return nil

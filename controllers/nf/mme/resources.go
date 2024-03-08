@@ -1,9 +1,9 @@
 package mme
 
 import (
-	"github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers"
 	"github.com/go-logr/logr"
+	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
@@ -11,7 +11,7 @@ import (
 	//"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v1alpha1.MMEDeployment) (*appsv1.Deployment, error) {
+func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *nephiov1alpha1.NFDeployment) (*appsv1.Deployment, error) {
 	namespace := mmeDeployment.Namespace
 	instanceName := mmeDeployment.Name
 	spec := mmeDeployment.Spec
@@ -350,7 +350,7 @@ func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *v
 	return deployment, nil
 }
 
-func createService(mmeDeployment *v1alpha1.MMEDeployment) *apiv1.Service {
+func createService(mmeDeployment *nephiov1alpha1.NFDeployment) *apiv1.Service {
 	namespace := mmeDeployment.Namespace
 	instanceName := mmeDeployment.Name
 
@@ -407,7 +407,7 @@ func createService(mmeDeployment *v1alpha1.MMEDeployment) *apiv1.Service {
 	return service
 }
 
-func createConfigMap(log logr.Logger, mmeDeployment *v1alpha1.MMEDeployment) (*apiv1.ConfigMap, error) {
+func createConfigMap(log logr.Logger, mmeDeployment *nephiov1alpha1.NFDeployment) (*apiv1.ConfigMap, error) {
 	namespace := mmeDeployment.Namespace
 	//instanceName := mmeDeployment.Name
 	instanceName := "mme-configs"
@@ -449,7 +449,7 @@ func createConfigMap(log logr.Logger, mmeDeployment *v1alpha1.MMEDeployment) (*a
 	return configMap, nil
 }
 
-func createScriptConfigMap(log logr.Logger, mmeDeployment *v1alpha1.MMEDeployment) (*apiv1.ConfigMap, error) {
+func createScriptConfigMap(log logr.Logger, mmeDeployment *nephiov1alpha1.NFDeployment) (*apiv1.ConfigMap, error) {
 	namespace := mmeDeployment.Namespace
 	instanceName := "mme-scripts"
 	log.Info("createScriptConfigMap++", "instanceName=", instanceName)
@@ -490,7 +490,7 @@ func createScriptConfigMap(log logr.Logger, mmeDeployment *v1alpha1.MMEDeploymen
 	return configMap, nil
 }
 
-func createResourceRequirements(mmeDeploymentSpec v1alpha1.MMEDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
+func createResourceRequirements(mmeDeploymentSpec nephiov1alpha1.NFDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
 	// TODO: Requirements should be calculated based on DL, UL
 	// TODO: increase number of recpicas based on NFDeployment.Capacity.MaxSessions
 
@@ -528,7 +528,7 @@ func createResourceRequirements(mmeDeploymentSpec v1alpha1.MMEDeploymentSpec) (i
 	return replicas, &resources, nil
 }
 
-/*func createNetworkAttachmentDefinitionNetworks(templateName string, mmeDeploymentSpec *v1alpha1.MMEDeploymentSpec) (string, error) {
+/*func createNetworkAttachmentDefinitionNetworks(templateName string, mmeDeploymentSpec *nephiov1alpha1.NFDeploymentSpec) (string, error) {
 	return controllers.CreateNetworkAttachmentDefinitionNetworks(templateName, map[string][]nephiov1alpha1.InterfaceConfig{
 		"n2": controllers.GetInterfaceConfigs(mmeDeploymentSpec.Interfaces, "n2"),
 	})

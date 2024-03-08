@@ -3,11 +3,9 @@ package mme
 import (
 	"context"
 	"fmt"
-	"time"
-
-	"github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers"
-
+	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
+	"time"
 	//
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -24,15 +22,6 @@ import (
 type MMEDeploymentReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
-}
-
-// Sets up the controller with the Manager
-func (r *MMEDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(new(v1alpha1.MMEDeployment)).
-		Owns(new(appsv1.Deployment)).
-		Owns(new(apiv1.ConfigMap)).
-		Complete(r)
 }
 
 // +kubebuilder:rbac:groups=workload.nephio.org,resources=mmedeployments,verbs=get;list;watch;create;update;patch;delete
@@ -56,7 +45,7 @@ func (r *MMEDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 func (r *MMEDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx).WithValues("MMEDeployment", req.NamespacedName)
 
-	mmeDeployment := new(v1alpha1.MMEDeployment)
+	mmeDeployment := new(nephiov1alpha1.NFDeployment)
 	err := r.Client.Get(ctx, req.NamespacedName, mmeDeployment)
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
@@ -218,10 +207,10 @@ func (r *MMEDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	return reconcile.Result{}, nil
 }
 
-func (r *MMEDeploymentReconciler) syncStatus(ctx context.Context, deployment *appsv1.Deployment, mmeDeployment *v1alpha1.MMEDeployment) error {
+func (r *MMEDeploymentReconciler) syncStatus(ctx context.Context, deployment *appsv1.Deployment, mmeDeployment *nephiov1alpha1.NFDeployment) error {
 	if nfDeploymentStatus, update := createNfDeploymentStatus(deployment, mmeDeployment); update {
 		mmeDeployment = mmeDeployment.DeepCopy()
-		mmeDeployment.Status.NFDeploymentStatus = nfDeploymentStatus
+		mmeDeployment.Status = nfDeploymentStatus
 		return r.Status().Update(ctx, mmeDeployment)
 	} else {
 		return nil

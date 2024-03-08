@@ -1,9 +1,9 @@
 package spgwc
 
 import (
-	"github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers"
 	"github.com/go-logr/logr"
+	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
@@ -11,7 +11,7 @@ import (
 	//"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func createDeployment(log logr.Logger, configMapVersion string, spgwcDeployment *v1alpha1.SPGWCDeployment) (*appsv1.Deployment, error) {
+func createDeployment(log logr.Logger, configMapVersion string, spgwcDeployment *nephiov1alpha1.NFDeployment) (*appsv1.Deployment, error) {
 	namespace := spgwcDeployment.Namespace
 	instanceName := spgwcDeployment.Name
 	spec := spgwcDeployment.Spec
@@ -199,7 +199,7 @@ func createDeployment(log logr.Logger, configMapVersion string, spgwcDeployment 
 	return deployment, nil
 }
 
-func createService(spgwcDeployment *v1alpha1.SPGWCDeployment) *apiv1.Service {
+func createService(spgwcDeployment *nephiov1alpha1.NFDeployment) *apiv1.Service {
 	namespace := spgwcDeployment.Namespace
 	instanceName := spgwcDeployment.Name
 
@@ -246,7 +246,7 @@ func createService(spgwcDeployment *v1alpha1.SPGWCDeployment) *apiv1.Service {
 	return service
 }
 
-func createConfigMap(log logr.Logger, spgwcDeployment *v1alpha1.SPGWCDeployment) (*apiv1.ConfigMap, error) {
+func createConfigMap(log logr.Logger, spgwcDeployment *nephiov1alpha1.NFDeployment) (*apiv1.ConfigMap, error) {
 	namespace := spgwcDeployment.Namespace
 	//instanceName := spgwcDeployment.Name
 	instanceName := "spgwc-configs"
@@ -290,7 +290,7 @@ func createConfigMap(log logr.Logger, spgwcDeployment *v1alpha1.SPGWCDeployment)
 	return configMap, nil
 }
 
-func createScriptConfigMap(log logr.Logger, spgwcDeployment *v1alpha1.SPGWCDeployment) (*apiv1.ConfigMap, error) {
+func createScriptConfigMap(log logr.Logger, spgwcDeployment *nephiov1alpha1.NFDeployment) (*apiv1.ConfigMap, error) {
 	namespace := spgwcDeployment.Namespace
 	instanceName := "spgwc-scripts"
 	log.Info("createScriptConfigMap++", "instanceName=", instanceName)
@@ -331,7 +331,7 @@ func createScriptConfigMap(log logr.Logger, spgwcDeployment *v1alpha1.SPGWCDeplo
 	return configMap, nil
 }
 
-func createResourceRequirements(spgwcDeploymentSpec v1alpha1.SPGWCDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
+func createResourceRequirements(spgwcDeploymentSpec nephiov1alpha1.NFDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
 	// TODO: Requirements should be calculated based on DL, UL
 	// TODO: increase number of recpicas based on NFDeployment.Capacity.MaxSessions
 
@@ -369,7 +369,7 @@ func createResourceRequirements(spgwcDeploymentSpec v1alpha1.SPGWCDeploymentSpec
 	return replicas, &resources, nil
 }
 
-/*func createNetworkAttachmentDefinitionNetworks(templateName string, spgwcDeploymentSpec *v1alpha1.SPGWCDeploymentSpec) (string, error) {
+/*func createNetworkAttachmentDefinitionNetworks(templateName string, spgwcDeploymentSpec *nephiov1alpha1.NFDeploymentSpec) (string, error) {
 	return controllers.CreateNetworkAttachmentDefinitionNetworks(templateName, map[string][]nephiov1alpha1.InterfaceConfig{
 		"n2": controllers.GetInterfaceConfigs(spgwcDeploymentSpec.Interfaces, "n2"),
 	})

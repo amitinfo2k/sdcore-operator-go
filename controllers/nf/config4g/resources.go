@@ -1,9 +1,9 @@
 package config4g
 
 import (
-	"github.com/amitinfo2k/sdcore-operator-go/api/v1alpha1"
 	"github.com/amitinfo2k/sdcore-operator-go/controllers"
 	"github.com/go-logr/logr"
+	nephiov1alpha1 "github.com/nephio-project/api/nf_deployments/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	resource "k8s.io/apimachinery/pkg/api/resource"
@@ -11,7 +11,7 @@ import (
 	//"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func createDeployment(log logr.Logger, configMapVersion string, config4gDeployment *v1alpha1.Config4GDeployment) (*appsv1.Deployment, error) {
+func createDeployment(log logr.Logger, configMapVersion string, config4gDeployment *nephiov1alpha1.NFDeployment) (*appsv1.Deployment, error) {
 	namespace := config4gDeployment.Namespace
 	instanceName := config4gDeployment.Name
 	spec := config4gDeployment.Spec
@@ -123,7 +123,7 @@ func createDeployment(log logr.Logger, configMapVersion string, config4gDeployme
 	return deployment, nil
 }
 
-func createService(config4gDeployment *v1alpha1.Config4GDeployment) *apiv1.Service {
+func createService(config4gDeployment *nephiov1alpha1.NFDeployment) *apiv1.Service {
 	namespace := config4gDeployment.Namespace
 	instanceName := config4gDeployment.Name
 
@@ -159,7 +159,7 @@ func createService(config4gDeployment *v1alpha1.Config4GDeployment) *apiv1.Servi
 	return service
 }
 
-func createConfigMap(log logr.Logger, config4gDeployment *v1alpha1.Config4GDeployment) (*apiv1.ConfigMap, error) {
+func createConfigMap(log logr.Logger, config4gDeployment *nephiov1alpha1.NFDeployment) (*apiv1.ConfigMap, error) {
 	namespace := config4gDeployment.Namespace
 	//instanceName := config4gDeployment.Name
 	instanceName := "config4g-configs"
@@ -200,7 +200,7 @@ func createConfigMap(log logr.Logger, config4gDeployment *v1alpha1.Config4GDeplo
 	return configMap, nil
 }
 
-func createScriptConfigMap(log logr.Logger, config4gDeployment *v1alpha1.Config4GDeployment) (*apiv1.ConfigMap, error) {
+func createScriptConfigMap(log logr.Logger, config4gDeployment *nephiov1alpha1.NFDeployment) (*apiv1.ConfigMap, error) {
 	namespace := config4gDeployment.Namespace
 	instanceName := "config4g-scripts"
 	log.Info("createScriptConfigMap++", "instanceName=", instanceName)
@@ -240,7 +240,7 @@ func createScriptConfigMap(log logr.Logger, config4gDeployment *v1alpha1.Config4
 	return configMap, nil
 }
 
-func createResourceRequirements(config4gDeploymentSpec v1alpha1.Config4GDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
+func createResourceRequirements(config4gDeploymentSpec nephiov1alpha1.NFDeploymentSpec) (int32, *apiv1.ResourceRequirements, error) {
 	// TODO: Requirements should be calculated based on DL, UL
 	// TODO: increase number of recpicas based on NFDeployment.Capacity.MaxSessions
 
@@ -278,7 +278,7 @@ func createResourceRequirements(config4gDeploymentSpec v1alpha1.Config4GDeployme
 	return replicas, &resources, nil
 }
 
-/*func createNetworkAttachmentDefinitionNetworks(templateName string, config4gDeploymentSpec *v1alpha1.Config4GDeploymentSpec) (string, error) {
+/*func createNetworkAttachmentDefinitionNetworks(templateName string, config4gDeploymentSpec *nephiov1alpha1.NFDeploymentSpec) (string, error) {
 	return controllers.CreateNetworkAttachmentDefinitionNetworks(templateName, map[string][]nephiov1alpha1.InterfaceConfig{
 		"n2": controllers.GetInterfaceConfigs(config4gDeploymentSpec.Interfaces, "n2"),
 	})
