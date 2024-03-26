@@ -26,14 +26,14 @@ func createDeployment(log logr.Logger, configMapVersion string, spgwcDeployment 
 		return nil, err
 	}
 
-	/*networkAttachmentDefinitionNetworks, err := createNetworkAttachmentDefinitionNetworks(spgwcDeployment.Name, &spec)
+	networkAttachmentDefinitionNetworks, err := createNetworkAttachmentDefinitionNetworks(spgwcDeployment.Name, &spec)
 	if err != nil {
 		return nil, err
-	}*/
+	}
 
 	podAnnotations := make(map[string]string)
 	podAnnotations[controllers.ConfigMapVersionAnnotation] = configMapVersion
-	//podAnnotations[controllers.NetworksAnnotation] = networkAttachmentDefinitionNetworks
+	podAnnotations[controllers.NetworksAnnotation] = networkAttachmentDefinitionNetworks
 
 	initSecurityContext := &apiv1.SecurityContext{
 		Privileged: &previleged,
@@ -201,7 +201,8 @@ func createDeployment(log logr.Logger, configMapVersion string, spgwcDeployment 
 
 func createService(spgwcDeployment *nephiov1alpha1.NFDeployment) *apiv1.Service {
 	namespace := spgwcDeployment.Namespace
-	instanceName := spgwcDeployment.Name
+	//instanceName := spgwcDeployment.Name
+	instanceName := "spgwc"
 
 	labels := map[string]string{
 		"name": instanceName,
@@ -252,14 +253,14 @@ func createConfigMap(log logr.Logger, spgwcDeployment *nephiov1alpha1.NFDeployme
 	instanceName := "spgwc-configs"
 	log.Info("createConfigMap++", "instanceName=", instanceName)
 
-	/*n2ip, err := controllers.GetFirstInterfaceConfigIPv4(spgwcDeployment.Spec.Interfaces, "n2")
+	n4ip, err := controllers.GetFirstInterfaceConfigIPv4(spgwcDeployment.Spec.Interfaces, "n4")
 	if err != nil {
-		log.Error(err, "Interface N2 not found in SPGWCDeployment Spec")
+		log.Error(err, "Interface PFCP not found in SPGWCDeployment Spec")
 		return nil, err
-	}*/
+	}
 
 	templateValues := configurationTemplateValues{
-		SVC_NAME:  instanceName,
+		N4_IP:     n4ip,
 		S1AP_PORT: 36412,
 		S11_PORT:  2123,
 	}
@@ -295,14 +296,14 @@ func createScriptConfigMap(log logr.Logger, spgwcDeployment *nephiov1alpha1.NFDe
 	instanceName := "spgwc-scripts"
 	log.Info("createScriptConfigMap++", "instanceName=", instanceName)
 
-	/*n2ip, err := controllers.GetFirstInterfaceConfigIPv4(spgwcDeployment.Spec.Interfaces, "n2")
+	n4ip, err := controllers.GetFirstInterfaceConfigIPv4(spgwcDeployment.Spec.Interfaces, "n4")
 	if err != nil {
-		log.Error(err, "Interface N2 not found in SPGWCDeployment Spec")
+		log.Error(err, "Interface PFCP not found in SPGWCDeployment Spec")
 		return nil, err
-	}*/
+	}
 
 	templateValues := configurationTemplateValues{
-		SVC_NAME:  instanceName,
+		N4_IP:     n4ip,
 		S1AP_PORT: 36412,
 		S11_PORT:  2123,
 	}
@@ -369,8 +370,8 @@ func createResourceRequirements(spgwcDeploymentSpec nephiov1alpha1.NFDeploymentS
 	return replicas, &resources, nil
 }
 
-/*func createNetworkAttachmentDefinitionNetworks(templateName string, spgwcDeploymentSpec *nephiov1alpha1.NFDeploymentSpec) (string, error) {
+func createNetworkAttachmentDefinitionNetworks(templateName string, spgwcDeploymentSpec *nephiov1alpha1.NFDeploymentSpec) (string, error) {
 	return controllers.CreateNetworkAttachmentDefinitionNetworks(templateName, map[string][]nephiov1alpha1.InterfaceConfig{
-		"n2": controllers.GetInterfaceConfigs(spgwcDeploymentSpec.Interfaces, "n2"),
+		"n4": controllers.GetInterfaceConfigs(spgwcDeploymentSpec.Interfaces, "n4"),
 	})
-}*/
+}

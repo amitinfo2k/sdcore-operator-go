@@ -8,7 +8,7 @@ import (
 )
 
 type configurationTemplateValues struct {
-	SVC_NAME  string
+	N4_IP     string
 	S1AP_PORT int
 	S11_PORT  int
 }

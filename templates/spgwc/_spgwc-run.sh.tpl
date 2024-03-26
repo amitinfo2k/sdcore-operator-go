@@ -10,7 +10,8 @@ mkdir -p /opt/cp/config
 cd /opt/cp/config
 cp /etc/cp/config/{*.json,*.conf} .
 
-echo "10.17.0.2 upf1" >> /etc/hosts
+export PFCP_IP={{ .N4_IP }}
+echo "172.1.1.254 upf" >> /etc/hosts
 
 case $APPLICATION in
     "ngic_controlplane")

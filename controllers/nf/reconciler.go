@@ -19,6 +19,7 @@ package nf
 import (
 	"context"
 
+	config4g "github.com/amitinfo2k/sdcore-operator-go/controllers/nf/config4g"
 	hss "github.com/amitinfo2k/sdcore-operator-go/controllers/nf/hss"
 	mme "github.com/amitinfo2k/sdcore-operator-go/controllers/nf/mme"
 	pcrf "github.com/amitinfo2k/sdcore-operator-go/controllers/nf/pcrf"
@@ -99,7 +100,7 @@ func (r *NFDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		Client: r.Client,
 		Scheme: r.Scheme,
 	}
-	config4gReconciler := &mme.Config4GDeploymentReconciler{
+	config4gReconciler := &config4g.Config4GDeploymentReconciler{
 		Client: r.Client,
 		Scheme: r.Scheme,
 	}
@@ -121,7 +122,7 @@ func (r *NFDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		mmeresult, _ := mmeReconciler.Reconcile(ctx, req)
 		return mmeresult, nil
 	case "config4g.sdcore4g.io":
-		mmeresult, _ := mmeReconciler.Reconcile(ctx, req)
+		mmeresult, _ := config4gReconciler.Reconcile(ctx, req)
 		return mmeresult, nil
 	default:
 		log.Info("NFDeployment NOT for SDCore 4G", "nfDeployment.Spec.Provider", nfDeployment.Spec.Provider)

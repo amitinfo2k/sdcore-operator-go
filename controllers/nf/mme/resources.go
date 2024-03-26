@@ -25,14 +25,14 @@ func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *n
 		return nil, err
 	}
 
-	/*networkAttachmentDefinitionNetworks, err := createNetworkAttachmentDefinitionNetworks(mmeDeployment.Name, &spec)
+	networkAttachmentDefinitionNetworks, err := createNetworkAttachmentDefinitionNetworks(mmeDeployment.Name, &spec)
 	if err != nil {
 		return nil, err
-	}*/
+	}
 
 	podAnnotations := make(map[string]string)
 	podAnnotations[controllers.ConfigMapVersionAnnotation] = configMapVersion
-	//podAnnotations[controllers.NetworksAnnotation] = networkAttachmentDefinitionNetworks
+	podAnnotations[controllers.NetworksAnnotation] = networkAttachmentDefinitionNetworks
 
 	initSecurityContext := &apiv1.SecurityContext{
 		Privileged: &previleged,
@@ -160,7 +160,7 @@ func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *n
 							ImagePullPolicy: apiv1.PullAlways,
 							Ports: []apiv1.ContainerPort{
 								{
-									Name:          "n2",
+									Name:          "s1ap",
 									Protocol:      apiv1.ProtocolSCTP,
 									ContainerPort: 36412,
 								},
@@ -352,7 +352,8 @@ func createDeployment(log logr.Logger, configMapVersion string, mmeDeployment *n
 
 func createService(mmeDeployment *nephiov1alpha1.NFDeployment) *apiv1.Service {
 	namespace := mmeDeployment.Namespace
-	instanceName := mmeDeployment.Name
+	//instanceName := mmeDeployment.Name
+	instanceName := "mme"
 
 	labels := map[string]string{
 		"name": instanceName,
@@ -413,11 +414,11 @@ func createConfigMap(log logr.Logger, mmeDeployment *nephiov1alpha1.NFDeployment
 	instanceName := "mme-configs"
 	log.Info("createConfigMap++", "instanceName=", instanceName)
 
-	/*n2ip, err := controllers.GetFirstInterfaceConfigIPv4(mmeDeployment.Spec.Interfaces, "n2")
+	_, err := controllers.GetFirstInterfaceConfigIPv4(mmeDeployment.Spec.Interfaces, "n2")
 	if err != nil {
-		log.Error(err, "Interface N2 not found in MMEDeployment Spec")
+		log.Error(err, "Interface S1AP not found in MMEDeployment Spec")
 		return nil, err
-	}*/
+	}
 
 	templateValues := configurationTemplateValues{
 		SVC_NAME:  instanceName,
@@ -454,11 +455,11 @@ func createScriptConfigMap(log logr.Logger, mmeDeployment *nephiov1alpha1.NFDepl
 	instanceName := "mme-scripts"
 	log.Info("createScriptConfigMap++", "instanceName=", instanceName)
 
-	/*n2ip, err := controllers.GetFirstInterfaceConfigIPv4(mmeDeployment.Spec.Interfaces, "n2")
+	_, err := controllers.GetFirstInterfaceConfigIPv4(mmeDeployment.Spec.Interfaces, "n2")
 	if err != nil {
-		log.Error(err, "Interface N2 not found in MMEDeployment Spec")
+		log.Error(err, "Interface s1ap not found in MMEDeployment Spec")
 		return nil, err
-	}*/
+	}
 
 	templateValues := configurationTemplateValues{
 		SVC_NAME:  instanceName,
@@ -528,8 +529,8 @@ func createResourceRequirements(mmeDeploymentSpec nephiov1alpha1.NFDeploymentSpe
 	return replicas, &resources, nil
 }
 
-/*func createNetworkAttachmentDefinitionNetworks(templateName string, mmeDeploymentSpec *nephiov1alpha1.NFDeploymentSpec) (string, error) {
+func createNetworkAttachmentDefinitionNetworks(templateName string, mmeDeploymentSpec *nephiov1alpha1.NFDeploymentSpec) (string, error) {
 	return controllers.CreateNetworkAttachmentDefinitionNetworks(templateName, map[string][]nephiov1alpha1.InterfaceConfig{
 		"n2": controllers.GetInterfaceConfigs(mmeDeploymentSpec.Interfaces, "n2"),
 	})
-}*/
+}

@@ -181,23 +181,23 @@ func (r *MMEDeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		//if deployment, err := createDeployment(log, configMapVersion, mmeDeployment); err == nil {
 		if !deploymentFound {
 			// Only create Deployment in case all required NADs are present. Otherwise Requeue in 10 sec.
-			//if ok := controllers.ValidateNetworkAttachmentDefinitions(ctx, r.Client, log, mmeDeployment.Kind, deployment); ok {
-			// Set the controller reference, specifying that MMEDeployment controls the underlying Deployment
-			if err := ctrl.SetControllerReference(mmeDeployment, deployment, r.Scheme); err != nil {
-				log.Error(err, "Got error while setting Owner reference on deployment", "Deployment.namespace", deployment.Namespace, "Deployment.name", deployment.Name)
-			}
+			if ok := controllers.ValidateNetworkAttachmentDefinitions(ctx, r.Client, log, mmeDeployment.Kind, deployment); ok {
+				// Set the controller reference, specifying that MMEDeployment controls the underlying Deployment
+				if err := ctrl.SetControllerReference(mmeDeployment, deployment, r.Scheme); err != nil {
+					log.Error(err, "Got error while setting Owner reference on deployment", "Deployment.namespace", deployment.Namespace, "Deployment.name", deployment.Name)
+				}
 
-			log.Info("Creating Deployment", "Deployment.namespace", deployment.Namespace, "Deployment.name", deployment.Name)
-			if err := r.Client.Create(ctx, deployment); err != nil {
-				log.Error(err, "Failed to create new Deployment", "Deployment.namespace", deployment.Namespace, "Deployment.name", deployment.Name)
-			}
+				log.Info("Creating Deployment", "Deployment.namespace", deployment.Namespace, "Deployment.name", deployment.Name)
+				if err := r.Client.Create(ctx, deployment); err != nil {
+					log.Error(err, "Failed to create new Deployment", "Deployment.namespace", deployment.Namespace, "Deployment.name", deployment.Name)
+				}
 
-			// TODO(tliron): explain why we need requeueing (do we?)
-			//return reconcile.Result{RequeueAfter: time.Duration(30) * time.Second}, nil
-			//} else {
-			//		log.Info("Not all NetworkAttachDefinitions available in current namespace, requeuing")
-			return reconcile.Result{RequeueAfter: time.Duration(10) * time.Second}, nil
-			//	}
+				// TODO(tliron): explain why we need requeueing (do we?)
+				return reconcile.Result{RequeueAfter: time.Duration(30) * time.Second}, nil
+			} else {
+				log.Info("Not all NetworkAttachDefinitions available in current namespace, requeuing")
+				return reconcile.Result{RequeueAfter: time.Duration(10) * time.Second}, nil
+			}
 		}
 	} else {
 		log.Error(err, fmt.Sprintf("Failed to create Deployment %s\n", err.Error()))
